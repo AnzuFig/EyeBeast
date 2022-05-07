@@ -54,6 +54,7 @@ Comments:
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h> // TODO Podemos usar?
 #include "wxTiny.h"
 
 
@@ -423,10 +424,13 @@ void gameInstallBoundaries(Game g)
 
 /******************************************************************************
  * gameInstallBlocks - Install the movable blocks
- * INCOMPLETE!
+ * COMPLETE!
  ******************************************************************************/
 void gameInstallBlocks(Game g)
 {
+	for(int x = 0; x < 110; x++){
+		actorNew(g, BLOCK, rand() % WORLD_SIZE_X, rand() % WORLD_SIZE_Y);
+	}
 }
 
 /******************************************************************************

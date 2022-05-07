@@ -1,6 +1,6 @@
 # EyeBeast
 
-C group project for the **Programming Languages and Environments** class.
+C group project for the **Programming Languages and Environments** class at FCT-UNL.
 
 This is a clone of the game **Eye Beast** (originally developed by Chuck Shotton for the Macintosh) made in C using the [wxWidgets](http://en.wikipedia.org/wiki/WxWidgets) library.
 

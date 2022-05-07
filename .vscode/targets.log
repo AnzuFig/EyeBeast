@@ -1,0 +1,396 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.2.1
+# Built for x86_64-pc-linux-gnu
+# Copyright (C) 1988-2016 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Sat May  7 13:19:33 2022
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+PAPERSIZE = letter
+# default
+.SHELLFLAGS := -c
+# environment
+XDG_SESSION_CLASS = user
+# environment
+VSCODE_AGENT_FOLDER = /home/ubuntu/.vscode-server
+# makefile (from 'Makefile', line 57)
+ZPRE =  if ! type wx-config >/dev/null 2>&1; then echo "\n"; echo "*************************************************************"; echo "Missing WXWIDGETS dependency:"; echo "  The developement library \"libwxgtk2.8-dev\" is missing!!!"; echo "  For WXWIDGETS support, you need to install it yourself."; echo "  In Debian-based systems it is enough to issue the command:"; echo "		sudo apt-get install libwxgtk2.8-dev"; echo "*************************************************************"; echo "\n"; exit 1; fi;
+# environment
+XDG_SESSION_TYPE = tty
+# environment
+VSCODE_LOG_NATIVE = false
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# automatic
+@F = $(notdir $@)
+# default
+MAKE_VERSION := 4.2.1
+# makefile
+CURDIR := /home/ubuntu/Desktop/Eye Beast - Projeto 2
+# makefile
+SHELL = /bin/sh
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
+# environment
+_ = /home/ubuntu/.vscode-server/bin/57fd6d0195bb9b9d1b49f6da5db789060795de47/node
+# makefile (from 'Makefile', line 15)
+CFLAGS = -O1 -w -Wno-invalid-source-encoding
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# makefile (from 'Makefile', line 20)
+DEBUG = 
+# 'override' directive
+GNUMAKEFLAGS := 
+# makefile (from 'Makefile', line 19)
+OBJ_DIR = obj
+# environment
+MAKELEVEL := 0
+# environment
+XDG_DATA_DIRS = /usr/local/share:/usr/share:/var/lib/snapd/desktop
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+# makefile (from 'Makefile', line 12)
+VERSION = 0.00.1
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# makefile (from 'Makefile', line 23)
+EXTRA = -std=c11
+# makefile (from 'Makefile', line 21)
+NAMES = wxTiny $(APP)
+# makefile (from 'Makefile', line 30)
+OBJS = 	$(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(foreach file, $(NAMES), $(file))) )
+# environment
+LESSOPEN = | /usr/bin/lesspipe %s
+# environment
+LC_NAME = en_US.UTF-8
+# makefile (from 'Makefile', line 14)
+CPP = g++
+# environment
+VSCODE_CWD = /home/ubuntu
+# environment
+SSH_CONNECTION = 10.0.2.2 49633 10.0.2.15 22
+# environment
+PATH = /home/ubuntu/.vscode-server/bin/57fd6d0195bb9b9d1b49f6da5db789060795de47/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# makefile (from 'Makefile', line 56)
+ZLIBS = $(EXTRA) $(LIBS) $(shell wx-config --unicode --libs)
+# environment
+VSCODE_LOG_STACK = false
+# environment
+LC_NUMERIC = en_US.UTF-8
+# environment
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-7111745a-dcd9-42ce-b594-57f97adeff6a.sock
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
+# environment
+LS_COLORS = 
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+PWD = /home/ubuntu/Desktop/Eye Beast - Projeto 2
+# default
+.LOADED := 
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/ubuntu
+# environment
+LESSCLOSE = /usr/bin/lesspipe %s %s
+# makefile (from 'Makefile', line 17)
+DEFINES = 
+# environment
+LOGNAME = ubuntu
+# makefile (from 'Makefile', line 55)
+ZDEFINES = $(EXTRA) -DOS=$(OS) $(DEFINES) -DUSE_WXWIDGETS $(shell wx-config --unicode --cxxflags)
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# automatic
++F = $(notdir $+)
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# makefile (from 'Makefile', line 36)
+ZFLAGS = $(DEBUG)
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+LC_TIME = en_US.UTF-8
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+SHLVL = 1
+# makefile (from 'Makefile', line 13)
+CC = gcc
+# environment
+XDG_SESSION_ID = 3
+# environment
+USER = ubuntu
+# environment
+LC_MONETARY = en_US.UTF-8
+# makefile
+.DEFAULT_GOAL := EyeBeast
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# environment
+LC_TELEPHONE = en_US.UTF-8
+# makefile (from 'Makefile', line 11)
+APP = EyeBeast
+# default
+MAKE_COMMAND := make
+# environment
+OLDPWD = /home/ubuntu/.vscode-server/bin/57fd6d0195bb9b9d1b49f6da5db789060795de47
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+LANGUAGE = en
+# makefile (from 'Makefile', line 22)
+OS = $(shell uname | cut -c 1-7)
+# makefile
+MAKEFLAGS = pqrR
+# environment
+MFLAGS = -pqrR
+# environment
+SSH_CLIENT = 10.0.2.2 49633 22
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+BROWSER = /home/ubuntu/.vscode-server/bin/57fd6d0195bb9b9d1b49f6da5db789060795de47/bin/helpers/browser.sh
+# environment
+VSCODE_HANDLES_SIGPIPE = true
+# makefile (from 'Makefile', line 16)
+ONLYCFLAGS = 
+# 'override' directive
+.SHELLSTATUS := 0
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# automatic
+^F = $(notdir $^)
+# environment
+LC_MEASUREMENT = en_US.UTF-8
+# environment
+LC_ALL = C
+# makefile (from 'Makefile', line 18)
+LIBS = 
+# environment
+LC_PAPER = en_US.UTF-8
+# default
+SUFFIXES := 
+# default
+.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+# environment
+LC_IDENTIFICATION = en_US.UTF-8
+# default
+.RECIPEPREFIX := 
+# environment
+LC_ADDRESS = en_US.UTF-8
+# default
+MAKE_HOST := x86_64-pc-linux-gnu
+# environment
+LANG = C
+# environment
+VSCODE_EXTHOST_WILL_SEND_SOCKET = true
+# environment
+MOTD_SHOWN = pam
+# variable set hash-table stats:
+# Load=101/1024=10%, Rehash=0, Collisions=34/154=22%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 64768, inode 16779430): 11 files, no impossibilities.
+
+# 11 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+obj/%.o: %.c
+#  recipe to execute (from 'Makefile', line 81):
+	$(CC) $(CFLAGS) $(ZFLAGS) $(ZDEFINES) $(ONLYCFLAGS) -c $< -o $@
+
+obj/%.o: %.cpp
+#  recipe to execute (from 'Makefile', line 84):
+	$(CPP) $(CFLAGS) $(ZFLAGS) $(ZDEFINES) -c $< -o $@
+
+# 2 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+obj/wxTiny.o: wxTiny.cpp
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'wxTiny'
+#  Last modified 2022-05-07 11:32:12.26595913
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 84):
+	$(CPP) $(CFLAGS) $(ZFLAGS) $(ZDEFINES) -c $< -o $@
+
+all: EyeBeast
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Successfully updated.
+
+.PHONY: clean compall eval
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj/wxTiny0.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-06 22:28:13.512122279
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+wxTiny.cpp:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-06 22:28:26.688510105
+#  File has been updated.
+#  Successfully updated.
+
+compall:
+ 
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 108):
+	rm -f EyeBeast.c EyeBeast ; \
+	for f in *.c ; do \
+		echo "+++++ Compilando $$f" ; \
+		rm -f EyeBeast.c ; \
+		cp $$f EyeBeast.c ; \
+		rm -f EyeBeast ; \
+		$(MAKE) -s EyeBeast ; \
+		mv EyeBeast `basename $$f .c` ; \
+		sleep 3 ; \
+	done ;
+
+obj/EyeBeast.o: EyeBeast.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'EyeBeast'
+#  Last modified 2022-05-07 13:18:34.502663433
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 81):
+	$(CC) $(CFLAGS) $(ZFLAGS) $(ZDEFINES) $(ONLYCFLAGS) -c $< -o $@
+
+obj:
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-07 13:18:34.498662206
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 87):
+	mkdir -p $(OBJ_DIR)
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+EyeBeast: obj obj/wxTiny.o obj/EyeBeast.o
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-07 13:18:34.886781262
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 78):
+	$(CPP) $(CFLAGS) -o $(APP) $(OBJS) $(ZLIBS)
+
+eval:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 121):
+	@if type $(APP).cpp >/dev/null 2>&1; \
+	then \
+		echo "Ignored! Respecting the file \"$(APP).cpp\"" ; \
+	else \
+		for f in submissions/*.cpp ; do \
+			echo "$$f" ; \
+			rm -f $(APP) $(APP).cpp obj/$(APP).o ; \
+			ln -s -T "$$f" $(APP).cpp ; \
+			EVAL=1 $(MAKE) -s $(APP) > "$${f%.*}.txt" 2>&1 ; \
+			mv $(APP) "$${f%.*}" ; \
+		done ; \
+	fi
+
+EyeBeast0: obj obj/wxTiny.o obj/EyeBeast.o obj/wxTiny0.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 90):
+	$(CPP) $(CFLAGS) -o EyeBeast0 $(OBJ_DIR)/EyeBeast.o $(OBJ_DIR)/wxTiny0.o $(ZLIBS)
+
+run: EyeBeast
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 104):
+	./$(APP)
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 99):
+	rm -rf $(APP) $(OBJ_DIR)
+
+# Not a target:
+EyeBeast.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-07 13:18:33.006202091
+#  File has been updated.
+#  Successfully updated.
+
+# files hash-table stats:
+# Load=17/1024=2%, Rehash=0, Collisions=0/53=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 30 / storage = 252 B / avg = 8 B
+# current buf: size = 8162 B / used = 252 B / count = 30 / avg = 8 B
+
+# strcache performance: lookups = 65 / hit rate = 53%
+# hash-table stats:
+# Load=30/8192=0%, Rehash=0, Collisions=1/65=2%
+# Finished Make data base on Sat May  7 13:19:33 2022
+
+ 

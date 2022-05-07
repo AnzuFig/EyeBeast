@@ -1,0 +1,11 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/ubuntu/Desktop/Eye Beast - Projeto 2'
+mkdir -p obj
+ 
+g++ -O1 -w -Wno-invalid-source-encoding  -std=c11 -DOS=Linux  -DUSE_WXWIDGETS -I/usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0 -I/usr/include/wx-3.0 -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__ -pthread -c wxTiny.cpp -o obj/wxTiny.o
+ 
+gcc -O1 -w -Wno-invalid-source-encoding  -std=c11 -DOS=Linux  -DUSE_WXWIDGETS -I/usr/lib/x86_64-linux-gnu/wx/include/gtk3-unicode-3.0 -I/usr/include/wx-3.0 -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__ -pthread  -c EyeBeast.c -o obj/EyeBeast.o
+ 
+g++ -O1 -w -Wno-invalid-source-encoding -o EyeBeast 	obj/wxTiny.o obj/EyeBeast.o -std=c11  -L/usr/lib/x86_64-linux-gnu -pthread   -lwx_gtk3u_xrc-3.0 -lwx_gtk3u_html-3.0 -lwx_gtk3u_qa-3.0 -lwx_gtk3u_adv-3.0 -lwx_gtk3u_core-3.0 -lwx_baseu_xml-3.0 -lwx_baseu_net-3.0 -lwx_baseu-3.0 
+make: Leaving directory '/home/ubuntu/Desktop/Eye Beast - Projeto 2'
+ 

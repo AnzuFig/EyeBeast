@@ -16,8 +16,8 @@ tab = 4 spaces
 
 
  AUTHORS IDENTIFICATION
-	Student 1: numero, nome
-	Student 2: numero, nome
+	Student 1: 60313, Francisco Freitas
+	Student 2: 60288, Guilherme Figueira
 
 Comments:
 
@@ -42,8 +42,8 @@ Comments:
 
 #define APP_NAME	"Eye Beast"
 
-#define AUTHOR1		"Nome1 (XXXXX)"
-#define AUTHOR2		"Nome2 (YYYYY)"
+#define AUTHOR1		"Francisco Freitas (60313)"
+#define AUTHOR2		"Guilherme Figueira (60288)"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -288,6 +288,7 @@ typedef struct {
 #define WORLD_SIZE_X	31
 #define WORLD_SIZE_Y	18
 #define N_MONSTERS		5
+#define N_BLOCKS		110
 
 typedef struct {
 	Actor world[WORLD_SIZE_X][WORLD_SIZE_Y];
@@ -379,6 +380,8 @@ void heroAnimation(Game g, Actor a)
 	int nx = a->x + dx, ny = a->y + dy;
 	if (cellIsEmpty(g, nx, ny))
 		actorMove(g, a, nx, ny);
+	//else
+		//Push blocks
 }
 
 /******************************************************************************
@@ -389,6 +392,7 @@ void actorAnimation(Game g, Actor a)
 {
 	switch( a->kind ) {
 		case HERO: heroAnimation(g, a); break;
+		//case CHASER: chaserAnimation(g, a); break;
 		default: break;
 	}
 }
@@ -428,17 +432,36 @@ void gameInstallBoundaries(Game g)
  ******************************************************************************/
 void gameInstallBlocks(Game g)
 {
-	for(int x = 0; x < 110; x++){
-		actorNew(g, BLOCK, rand() % WORLD_SIZE_X, rand() % WORLD_SIZE_Y);
+	
+	for(int x = 0; x < N_BLOCKS; x++){
+		int nx;
+		int ny;
+		do{
+			nx = 1 + rand() % WORLD_SIZE_X; // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + rand() % WORLD_SIZE_Y; // Generates a random integer between 1 and WORLD_SIZE_Y
+		} while(!cellIsEmpty(g, nx, ny));
+		actorNew(g, BLOCK, nx, ny);
 	}
 }
 
 /******************************************************************************
  * gameInstallMonsters - Install the monsters
- * INCOMPLETE!
+ * COMPLETE!
  ******************************************************************************/
 void gameInstallMonsters(Game g)
-{
+{	
+	for(int x = 0; x < N_MONSTERS; x++){
+		int nx;
+		int ny;
+		int heroX = g->hero->x;
+		int heroY = g->hero->y;
+		do{
+			nx = 1 + rand() % WORLD_SIZE_X; // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + rand() % WORLD_SIZE_Y; // Generates a random integer between 1 and WORLD_SIZE_Y	
+		} while(!cellIsEmpty(g, nx, ny) && abs(nx - heroX) <= 4 && abs(ny - heroY) <= 4 );
+		actorNew(g, CHASER, nx, ny);
+	}
+	
 }
 
 /******************************************************************************
@@ -461,8 +484,8 @@ Game gameInit(Game g)
 	gameClearWorld(g);
 	gameInstallBoundaries(g);
 	gameInstallBlocks(g);
+	gameInstallHero(g); // TODO podemos ter assim trocado? (hero <-> monster)
 	gameInstallMonsters(g);
-	gameInstallHero(g);
 	return g;
 }
 
@@ -488,8 +511,8 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
-//	for(int i = 0 ; i < N_MONSTERS ; i++)
-//		actorAnimation(g, g->monsters[i]);		
+	//for(int i = 0 ; i < N_MONSTERS ; i++)
+	//	actorAnimation(g, g->monsters[i]);		
 }
 
 

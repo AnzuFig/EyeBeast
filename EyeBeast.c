@@ -54,6 +54,7 @@ Comments:
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
 #include "wxTiny.h"
 
 
@@ -295,6 +296,9 @@ typedef struct {
 	Actor monsters[N_MONSTERS];
 } GameStruct, *Game;
 
+// 10 frames per second
+int frame; // TODO podemos ter esta variavel global aqui?
+
 /******************************************************************************
  * actorImage - Get the screen image corresponding to some kind of actor
  ******************************************************************************/
@@ -387,8 +391,8 @@ void chaserAnimation(Game g, Actor a){
 	int nx;
 	int ny;
 	do{
-		nx = a->x + (tyRand(2) - 1);
-		ny = a->y + (tyRand(2) - 1);
+		nx = a->x + (tyRand(3) - 1);
+		ny = a->y + (tyRand(3) - 1);
 	} while(!cellIsEmpty(g, nx, ny));
 	actorMove(g, a, nx, ny);
 }
@@ -459,7 +463,7 @@ void gameInstallBlocks(Game g)
  ******************************************************************************/
 void gameInstallMonsters(Game g)
 {	
-	for(int x = 0; x < N_MONSTERS; x++){
+	for(int i = 0; i < N_MONSTERS; i++){
 		int nx;
 		int ny;
 		int heroX = g->hero->x;
@@ -468,7 +472,7 @@ void gameInstallMonsters(Game g)
 			nx = 1 + tyRand(WORLD_SIZE_X - 1); // Generates a random integer between 1 and WORLD_SIZE_X 
 			ny = 1 + tyRand(WORLD_SIZE_Y - 1);; // Generates a random integer between 1 and WORLD_SIZE_Y	
 		} while(!cellIsEmpty(g, nx, ny) && tyDistance(g->hero->x, g->hero->y, nx, ny) <= 4 );
-		g->monsters[x] = actorNew(g, CHASER, nx, ny);
+		g->monsters[i] = actorNew(g, CHASER, nx, ny);
 	}
 	
 }
@@ -519,17 +523,23 @@ void gameRedraw(Game g)
 		}
 }
 
+void routineActorAnimation(Game g){
+	actorAnimation(g, g->hero);
+}
+
 /******************************************************************************
  * gameAnimation - Sends animation events to all the animated actors
  * This function is called every tenth of a second (more or less...)
  * INCOMPLETE!
 ******************************************************************************/
 void gameAnimation(Game g) {
-	actorAnimation(g, g->hero);
-	if(tySeconds() == 10){
+	printf("%d\n", frame); // Debug
+	//pthread_t heroAnimThread;
+	//pthread_create(&heroAnimThread, NULL, routineActorAnimation, g);
+	actorAnimation(g, g->hero); // TODO Usar threads?
+	if(frame % 10 == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
-			actorAnimation(g, g->monsters[i]);		
-			//printf("%d\n", g->monsters[i]->x);
+			actorAnimation(g, g->monsters[i]);	
 	}
 }
 
@@ -691,6 +701,7 @@ void tyHandleTime(void)
 {
 	status();
 	gameAnimation(game);
+	frame = frame + 1;
 }
 
 /****************************************************************************** 
@@ -700,5 +711,6 @@ void tyHandleStart(void)
 {
 	tySecondsSetZero();
 	tySetSpeed(5);
+	frame = 0;
 	game = gameInit(game);
 }

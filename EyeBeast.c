@@ -54,7 +54,6 @@ Comments:
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h> // TODO Podemos usar?
 #include "wxTiny.h"
 
 
@@ -384,6 +383,16 @@ void heroAnimation(Game g, Actor a)
 		//Push blocks
 }
 
+void chaserAnimation(Game g, Actor a){
+	int nx;
+	int ny;
+	do{
+		nx = a->x + (tyRand(2) - 1);
+		ny = a->y + (tyRand(2) - 1);
+	} while(!cellIsEmpty(g, nx, ny));
+	actorMove(g, a, nx, ny);
+}
+
 /******************************************************************************
  * actorAnimation - The actor behaves according to its kind
  * INCOMPLETE!
@@ -392,7 +401,7 @@ void actorAnimation(Game g, Actor a)
 {
 	switch( a->kind ) {
 		case HERO: heroAnimation(g, a); break;
-		//case CHASER: chaserAnimation(g, a); break;
+		case CHASER: chaserAnimation(g, a); break;
 		default: break;
 	}
 }
@@ -437,8 +446,8 @@ void gameInstallBlocks(Game g)
 		int nx;
 		int ny;
 		do{
-			nx = 1 + rand() % WORLD_SIZE_X; // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + rand() % WORLD_SIZE_Y; // Generates a random integer between 1 and WORLD_SIZE_Y
+			nx = 1 + tyRand(WORLD_SIZE_X); // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + tyRand(WORLD_SIZE_Y); // Generates a random integer between 1 and WORLD_SIZE_Y
 		} while(!cellIsEmpty(g, nx, ny));
 		actorNew(g, BLOCK, nx, ny);
 	}
@@ -456,21 +465,27 @@ void gameInstallMonsters(Game g)
 		int heroX = g->hero->x;
 		int heroY = g->hero->y;
 		do{
-			nx = 1 + rand() % WORLD_SIZE_X; // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + rand() % WORLD_SIZE_Y; // Generates a random integer between 1 and WORLD_SIZE_Y	
-		} while(!cellIsEmpty(g, nx, ny) && abs(nx - heroX) <= 4 && abs(ny - heroY) <= 4 );
-		actorNew(g, CHASER, nx, ny);
+			nx = 1 + tyRand(WORLD_SIZE_X - 1); // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + tyRand(WORLD_SIZE_Y - 1);; // Generates a random integer between 1 and WORLD_SIZE_Y	
+		} while(!cellIsEmpty(g, nx, ny) && tyDistance(g->hero->x, g->hero->y, nx, ny) <= 4 );
+		g->monsters[x] = actorNew(g, CHASER, nx, ny);
 	}
 	
 }
 
 /******************************************************************************
  * gameInstallHero - Install the hero
- * INCOMPLETE! This code is to change
+ * COMPLETE! This code is to change
  ******************************************************************************/
 void gameInstallHero(Game g)
-{
-	g->hero = actorNew(g, HERO, 10, 10);
+{	
+	int x;
+	int y;
+	do{
+		x = 1 + tyRand(WORLD_SIZE_X);;	
+		y = 1 + tyRand(WORLD_SIZE_Y);;
+	} while(!cellIsEmpty(g, x, y));
+	g->hero = actorNew(g, HERO, x, y);
 }
 
 /******************************************************************************
@@ -511,8 +526,11 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
-	//for(int i = 0 ; i < N_MONSTERS ; i++)
-	//	actorAnimation(g, g->monsters[i]);		
+	if(tySeconds() == 10){
+		for(int i = 0 ; i < N_MONSTERS ; i++) 
+			actorAnimation(g, g->monsters[i]);		
+			//printf("%d\n", g->monsters[i]->x);
+	}
 }
 
 

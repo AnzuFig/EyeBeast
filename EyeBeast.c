@@ -54,7 +54,6 @@ Comments:
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <pthread.h>
 #include "wxTiny.h"
 
 
@@ -276,6 +275,7 @@ typedef struct {
 	ActorKind kind;
 	int x, y;
 	Image image;
+	bool isTasty;
 	union {
 // specific fields for each kind
 		Hero hero;
@@ -370,6 +370,14 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 	a->y = y;
 	a->image = actorImage(kind);
 	actorShow(g, a);
+	switch(kind){
+		case HERO:
+			a->isTasty = true;
+			break;
+		default:
+			a->isTasty = false;
+			break;
+	}
 	return a;
 }
 
@@ -432,11 +440,9 @@ Actor* getAdjacentCells(Game g, int cx, int cy){
 	Actor *adjacentCells = malloc(sizeof(Actor) * arraySize);
 	for(int x = cx - 1; x <= cx + 1; x++){
 		for(int y = cy - 1; y <= cy + 1; y++){
-
 			if(!(x == cx && y == cy)){
 				adjacentCells[count++] = g->world[x][y];
 			}
-
 		}
 	}
 	return adjacentCells;
@@ -466,8 +472,10 @@ void chaserAnimation(Game g, Actor a){
 		ny = a->y;
 	}
 
-	if(nx == g->hero->x && ny == g->hero->y){
-		LoseGame();
+	if(g->world[nx][ny] != NULL){
+		if(g->world[nx][ny]->isTasty){
+			LoseGame();
+		}
 	}
 
 	while(!cellIsEmpty(g, nx, ny)){
@@ -571,6 +579,19 @@ void gameInstallHero(Game g)
 		y = 1 + tyRand(WORLD_SIZE_Y - 2);
 	} while(!cellIsEmpty(g, x, y));
 	g->hero = actorNew(g, HERO, x, y);
+}
+
+void isGameWon(Game g){
+	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
+	for(int i = 0; i < numMonsters; i++){
+		Actor *adjacent = getAdjacentCells(g, g->monsters[i]->x, g->monsters[i]->y);
+		for(int j = 0; j < 8; j++){
+			if(adjacent[j] != NULL && cellIsEmpty(g, adjacent[j]->x, adjacent[j]->y))
+				return;
+		}
+	}
+	tyAlertDialog("You won", "You win!!!");
+	tyQuit();
 }
 
 /******************************************************************************
@@ -777,6 +798,7 @@ void tyHandleTime(void)
 {
 	status();
 	gameAnimation(game);
+	isGameWon(game);
 	frame = frame + 1;
 }
 

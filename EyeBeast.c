@@ -373,6 +373,12 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 	return a;
 }
 
+void LoseGame(){
+		tyAlertDialog("Game over", "You lost!");
+		tyQuit();
+		//comandRestart(); TODO
+}
+
 /******************************************************************************
  * heroAnimation - The hero moves using the cursor keys
  * INCOMPLETE!
@@ -383,46 +389,54 @@ void heroAnimation(Game g, Actor a)
 	int nx = a->x + dx, ny = a->y + dy;
 	if (cellIsEmpty(g, nx, ny))
 		actorMove(g, a, nx, ny);
-	//else
-		//Push blocks
+	else{
+		switch (g->world[nx][ny]->kind){
+			case CHASER:
+				LoseGame();
+				break;
+			case BLOCK:
+				pushBlock(g, g->world[nx][ny], dx, dy);
+				break;
+			default: break;
+		}
+	}
 }
 
-//Pre:
-/*
-Actor* getAdjacentCells(Game g, int radius, int x, int y){
-	int arraySize = pow(radius + 2, 2);
-	Actor *adjacentCells = malloc(sizeof(Actor) * arraySize);
-		for(int i = 0; i < arraySize; i++){ // Nao e preciso
-			for(int j = x - radius; j < x + radius; j++){
-				for(int k = y - radius; k < y + radius; k++){
-					if(j < 0 || j > WORLD_SIZE_X - 1 ||
-						k < 0 || k > WORLD_SIZE_Y - 1){
-						adjacentCells[i] = NULL;
-						} 
-					else{
-						adjacentCells[i] = g->world[j][k];
-						if(adjacentCells[i] != NULL)
-							printf("x = %d, y = %d\n", adjacentCells[i]->x, adjacentCells[i]->y);
-						else
-							printf("NULL\n");
-					}
-				}
-			}
+void pushBlock(Game g, Actor a, int dx, int dy) {
+	Actor block = a;
+	bool canPush = true;
+	while(!cellIsEmpty(g, block->x+dx, block->y+dy)){
+		block = g->world[block->x+dx][block->y+dy];
+		switch(block->kind){
+			case BLOCK:
+				break;
+			default:
+				return; 
 		}
-	return adjacentCells;
+	}
+	while(tyDistance(block->x, block->y, a->x, a->y) != 0){
+		int tempBlockX = block->x-dx;
+		int tempBlockY = block->y-dy;
+		actorMove(g, block, block->x+dx, block->y+dy);
+		block = g->world[tempBlockX][tempBlockY];
+	}
+	int tempHeroX = a->x-dx;
+	int tempHeroY = a->y-dy;	
+	actorMove(g, a, a->x+dx, a->y+dy);
+	actorMove(g, g->world[tempHeroX][tempHeroY], tempHeroX+dx, tempHeroY+dy);
 }
-*/
 
 Actor* getAdjacentCells(Game g, int cx, int cy){
 	int arraySize = 8;
 	int count = 0;
 	Actor *adjacentCells = malloc(sizeof(Actor) * arraySize);
-	for(int x = cx - 1; x < cx + 1; x++){
-		for(int y = cy - 1; y < cy + 1; y++){
+	for(int x = cx - 1; x <= cx + 1; x++){
+		for(int y = cy - 1; y <= cy + 1; y++){
+
 			if(!(x == cx && y == cy)){
-				adjacentCells[count] = g->world[x][y];
-				count = count + 1;
+				adjacentCells[count++] = g->world[x][y];
 			}
+
 		}
 	}
 	return adjacentCells;
@@ -450,6 +464,10 @@ void chaserAnimation(Game g, Actor a){
 	}
 	else {
 		ny = a->y;
+	}
+
+	if(nx == g->hero->x && ny == g->hero->y){
+		LoseGame();
 	}
 
 	while(!cellIsEmpty(g, nx, ny)){
@@ -534,7 +552,7 @@ void gameInstallMonsters(Game g)
 		do{
 			nx = 1 + tyRand(WORLD_SIZE_X - 2); // Generates a random integer between 1 and WORLD_SIZE_X 
 			ny = 1 + tyRand(WORLD_SIZE_Y - 2);; // Generates a random integer between 1 and WORLD_SIZE_Y	
-		} while(!cellIsEmpty(g, nx, ny) && tyDistance(heroX, heroY, nx, ny) <= 4 );
+		} while(!cellIsEmpty(g, nx, ny) || tyDistance(heroX, heroY, nx, ny) <= 4 );
 		g->monsters[i] = actorNew(g, CHASER, nx, ny);
 	}
 	
@@ -566,7 +584,7 @@ Game gameInit(Game g)
 	gameClearWorld(g);
 	gameInstallBoundaries(g);
 	gameInstallBlocks(g);
-	gameInstallHero(g); // TODO podemos ter assim trocado? (hero <-> monster)
+	gameInstallHero(g); 
 	gameInstallMonsters(g);
 	return g;
 }
@@ -593,10 +611,12 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero); 
+	/*
 	if(frame % 10 == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
 			actorAnimation(g, g->monsters[i]);	
 	}
+	*/
 }
 
 

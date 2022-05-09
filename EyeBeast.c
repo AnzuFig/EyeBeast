@@ -387,13 +387,76 @@ void heroAnimation(Game g, Actor a)
 		//Push blocks
 }
 
+//Pre:
+/*
+Actor* getAdjacentCells(Game g, int radius, int x, int y){
+	int arraySize = pow(radius + 2, 2);
+	Actor *adjacentCells = malloc(sizeof(Actor) * arraySize);
+		for(int i = 0; i < arraySize; i++){ // Nao e preciso
+			for(int j = x - radius; j < x + radius; j++){
+				for(int k = y - radius; k < y + radius; k++){
+					if(j < 0 || j > WORLD_SIZE_X - 1 ||
+						k < 0 || k > WORLD_SIZE_Y - 1){
+						adjacentCells[i] = NULL;
+						} 
+					else{
+						adjacentCells[i] = g->world[j][k];
+						if(adjacentCells[i] != NULL)
+							printf("x = %d, y = %d\n", adjacentCells[i]->x, adjacentCells[i]->y);
+						else
+							printf("NULL\n");
+					}
+				}
+			}
+		}
+	return adjacentCells;
+}
+*/
+
+Actor* getAdjacentCells(Game g, int cx, int cy){
+	int arraySize = 8;
+	int count = 0;
+	Actor *adjacentCells = malloc(sizeof(Actor) * arraySize);
+	for(int x = cx - 1; x < cx + 1; x++){
+		for(int y = cy - 1; y < cy + 1; y++){
+			if(!(x == cx && y == cy)){
+				adjacentCells[count] = g->world[x][y];
+				count = count + 1;
+			}
+		}
+	}
+	return adjacentCells;
+}
+
 void chaserAnimation(Game g, Actor a){
 	int nx;
 	int ny;
-	do{
+	int heroX = g->hero->x;
+	int heroY = g->hero->y;
+
+	if(heroX > a->x){
+		nx = a->x + 1;
+	} else if (heroX < a->x){
+		nx = a->x - 1;
+	}
+	else {
+		nx = a->x;
+	}
+	
+	if(heroY > a->y){
+		ny = a->y + 1;
+	} else if (heroY < a->y){
+		ny = a->y - 1;
+	}
+	else {
+		ny = a->y;
+	}
+
+	while(!cellIsEmpty(g, nx, ny)){
 		nx = a->x + (tyRand(3) - 1);
 		ny = a->y + (tyRand(3) - 1);
-	} while(!cellIsEmpty(g, nx, ny));
+	}
+
 	actorMove(g, a, nx, ny);
 }
 
@@ -450,8 +513,8 @@ void gameInstallBlocks(Game g)
 		int nx;
 		int ny;
 		do{
-			nx = 1 + tyRand(WORLD_SIZE_X); // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + tyRand(WORLD_SIZE_Y); // Generates a random integer between 1 and WORLD_SIZE_Y
+			nx = 1 + tyRand(WORLD_SIZE_X - 2); // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + tyRand(WORLD_SIZE_Y - 2); // Generates a random integer between 1 and WORLD_SIZE_Y
 		} while(!cellIsEmpty(g, nx, ny));
 		actorNew(g, BLOCK, nx, ny);
 	}
@@ -469,9 +532,9 @@ void gameInstallMonsters(Game g)
 		int heroX = g->hero->x;
 		int heroY = g->hero->y;
 		do{
-			nx = 1 + tyRand(WORLD_SIZE_X - 1); // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + tyRand(WORLD_SIZE_Y - 1);; // Generates a random integer between 1 and WORLD_SIZE_Y	
-		} while(!cellIsEmpty(g, nx, ny) && tyDistance(g->hero->x, g->hero->y, nx, ny) <= 4 );
+			nx = 1 + tyRand(WORLD_SIZE_X - 2); // Generates a random integer between 1 and WORLD_SIZE_X 
+			ny = 1 + tyRand(WORLD_SIZE_Y - 2);; // Generates a random integer between 1 and WORLD_SIZE_Y	
+		} while(!cellIsEmpty(g, nx, ny) && tyDistance(heroX, heroY, nx, ny) <= 4 );
 		g->monsters[i] = actorNew(g, CHASER, nx, ny);
 	}
 	
@@ -486,8 +549,8 @@ void gameInstallHero(Game g)
 	int x;
 	int y;
 	do{
-		x = 1 + tyRand(WORLD_SIZE_X);;	
-		y = 1 + tyRand(WORLD_SIZE_Y);;
+		x = 1 + tyRand(WORLD_SIZE_X - 2);	
+		y = 1 + tyRand(WORLD_SIZE_Y - 2);
 	} while(!cellIsEmpty(g, x, y));
 	g->hero = actorNew(g, HERO, x, y);
 }
@@ -523,20 +586,13 @@ void gameRedraw(Game g)
 		}
 }
 
-void routineActorAnimation(Game g){
-	actorAnimation(g, g->hero);
-}
-
 /******************************************************************************
  * gameAnimation - Sends animation events to all the animated actors
  * This function is called every tenth of a second (more or less...)
  * INCOMPLETE!
 ******************************************************************************/
 void gameAnimation(Game g) {
-	printf("%d\n", frame); // Debug
-	//pthread_t heroAnimThread;
-	//pthread_create(&heroAnimThread, NULL, routineActorAnimation, g);
-	actorAnimation(g, g->hero); // TODO Usar threads?
+	actorAnimation(g, g->hero); 
 	if(frame % 10 == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
 			actorAnimation(g, g->monsters[i]);	

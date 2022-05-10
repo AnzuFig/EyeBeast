@@ -412,7 +412,6 @@ void heroAnimation(Game g, Actor a)
 
 void pushBlock(Game g, Actor a, int dx, int dy) {
 	Actor block = a;
-	bool canPush = true;
 	while(!cellIsEmpty(g, block->x+dx, block->y+dy)){
 		block = g->world[block->x+dx][block->y+dy];
 		switch(block->kind){
@@ -429,7 +428,7 @@ void pushBlock(Game g, Actor a, int dx, int dy) {
 		block = g->world[tempBlockX][tempBlockY];
 	}
 	int tempHeroX = a->x-dx;
-	int tempHeroY = a->y-dy;	
+	int tempHeroY = a->y-dy;
 	actorMove(g, a, a->x+dx, a->y+dy);
 	actorMove(g, g->world[tempHeroX][tempHeroY], tempHeroX+dx, tempHeroY+dy);
 }
@@ -584,9 +583,9 @@ void gameInstallHero(Game g)
 void isGameWon(Game g){
 	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
 	for(int i = 0; i < numMonsters; i++){
-		Actor *adjacent = getAdjacentCells(g, g->monsters[i]->x, g->monsters[i]->y);
+		Actor* adjacent = getAdjacentCells(g, g->monsters[i]->x, g->monsters[i]->y);
 		for(int j = 0; j < 8; j++){
-			if(adjacent[j] != NULL && cellIsEmpty(g, adjacent[j]->x, adjacent[j]->y))
+			if(adjacent[j] != NULL)
 				return;
 		}
 	}
@@ -632,12 +631,13 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero); 
-	/*
+	
 	if(frame % 10 == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
 			actorAnimation(g, g->monsters[i]);	
+		isGameWon(g);
 	}
-	*/
+	
 }
 
 
@@ -798,7 +798,6 @@ void tyHandleTime(void)
 {
 	status();
 	gameAnimation(game);
-	isGameWon(game);
 	frame = frame + 1;
 }
 

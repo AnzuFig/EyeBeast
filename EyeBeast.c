@@ -297,7 +297,7 @@ typedef struct {
 } GameStruct, *Game;
 
 // 10 frames per second
-int frame; // TODO podemos ter esta variavel global aqui?
+int frame; 
 
 /******************************************************************************
  * actorImage - Get the screen image corresponding to some kind of actor
@@ -384,7 +384,6 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 void LoseGame(){
 		tyAlertDialog("Game over", "You lost!");
 		tyQuit();
-		//comandRestart(); TODO
 }
 
 /******************************************************************************
@@ -447,12 +446,20 @@ Actor* getAdjacentCells(Game g, int cx, int cy){
 	return adjacentCells;
 }
 
+bool isStuck (Game g, Actor* adjacentBlocks){
+	for(int i = 0; i < 8; i++){
+		if(adjacentBlocks[i] == NULL)
+			return false;
+	}
+	return true;
+}
+
 void chaserAnimation(Game g, Actor a){
 	int nx;
 	int ny;
 	int heroX = g->hero->x;
 	int heroY = g->hero->y;
-
+	
 	if(heroX > a->x){
 		nx = a->x + 1;
 	} else if (heroX < a->x){
@@ -476,10 +483,12 @@ void chaserAnimation(Game g, Actor a){
 			LoseGame();
 		}
 	}
-
-	while(!cellIsEmpty(g, nx, ny)){
-		nx = a->x + (tyRand(3) - 1);
-		ny = a->y + (tyRand(3) - 1);
+	
+	if(!isStuck(g, getAdjacentCells(g, a->x, a->y))){
+		while(!cellIsEmpty(g, nx, ny)){
+			nx = a->x + (tyRand(3) - 1);
+			ny = a->y + (tyRand(3) - 1);
+		}
 	}
 
 	actorMove(g, a, nx, ny);
@@ -584,13 +593,23 @@ void isGameWon(Game g){
 	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
 	for(int i = 0; i < numMonsters; i++){
 		Actor* adjacent = getAdjacentCells(g, g->monsters[i]->x, g->monsters[i]->y);
-		for(int j = 0; j < 8; j++){
-			if(adjacent[j] != NULL)
-				return;
+		if(!isStuck(g, adjacent)){
+			return;
 		}
 	}
 	tyAlertDialog("You won", "You win!!!");
 	tyQuit();
+}
+
+// Used for debug purposes
+void fillWithBlocks(Game g){ 
+	for(int x = 0; x < WORLD_SIZE_X; x++){
+		for(int y = 0; y < WORLD_SIZE_Y; y++){
+			if(cellIsEmpty(g, x, y)){
+				actorNew(g, BLOCK, x, y);
+			}
+		}
+	}
 }
 
 /******************************************************************************

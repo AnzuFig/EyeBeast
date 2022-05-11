@@ -422,15 +422,34 @@ void LoseGame(){
 		//tyQuit();
 }
 
-void replaceBonus(Game g, int x, int y){
-	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
-	for(int i = 0; i < numBonus; i++){
-		Actor bonus = g->bonusCells[i];
-		if(bonus->x == x && bonus->y == y){
-			actorShow(g, bonus);
-			return;
+// Returns true if sucessful, false otherwise
+bool pushBlock(Game g, Actor a, int dx, int dy) {
+	Actor block = a;
+	bool canContinue = true;
+	while(!cellIsEmpty(g, block->x+dx, block->y+dy) && canContinue){
+		block = g->world[block->x+dx][block->y+dy];
+		switch(block->kind){
+			case BLOCK:
+				break;
+			case BONUS_PLACE:
+				block = g->world[block->x-dx][block->y-dy];
+				canContinue = false;
+				break;
+			default:
+				return false; 
 		}
 	}
+	while(tyDistance(block->x, block->y, a->x, a->y) != 0){
+		int tempBlockX = block->x-dx;
+		int tempBlockY = block->y-dy;
+		actorMove(g, block, block->x+dx, block->y+dy);
+		block = g->world[tempBlockX][tempBlockY];
+	}
+	int tempHeroX = a->x-dx;
+	int tempHeroY = a->y-dy;
+	actorMove(g, a, a->x+dx, a->y+dy);
+	actorMove(g, g->world[tempHeroX][tempHeroY], tempHeroX+dx, tempHeroY+dy);
+	return true;
 }
 
 /******************************************************************************
@@ -453,7 +472,9 @@ void heroAnimation(Game g, Actor a)
 				break;
 			case BLOCK:
 				pushBlock(g, g->world[nx][ny], dx, dy);
-				replaceBonus(g, nx - dx, ny - dy);
+				if(nx-dx != a->x || ny-dy != a->y){
+					replaceBonus(g, nx - dx, ny - dy);
+				}
 				break;
 			case BONUS_PLACE:
 				actorMove(g, a, nx, ny);
@@ -464,28 +485,26 @@ void heroAnimation(Game g, Actor a)
 	}
 }
 
-void pushBlock(Game g, Actor a, int dx, int dy) {
-	Actor block = a;
-	while(!cellIsEmpty(g, block->x+dx, block->y+dy)){
-		block = g->world[block->x+dx][block->y+dy];
-		switch(block->kind){
-			case BLOCK:
-				break;
-			default:
-				return; 
+// Returns the bonus actor if cell is bonus
+Actor cellIsBonus(Game g, int x, int y){
+	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
+	for(int i = 0; i < numBonus; i++){
+		Actor bonus = g->bonusCells[i];
+		if(bonus->x == x && bonus->y == y){
+			return bonus;
 		}
 	}
-	while(tyDistance(block->x, block->y, a->x, a->y) != 0){
-		int tempBlockX = block->x-dx;
-		int tempBlockY = block->y-dy;
-		actorMove(g, block, block->x+dx, block->y+dy);
-		block = g->world[tempBlockX][tempBlockY];
-	}
-	int tempHeroX = a->x-dx;
-	int tempHeroY = a->y-dy;
-	actorMove(g, a, a->x+dx, a->y+dy);
-	actorMove(g, g->world[tempHeroX][tempHeroY], tempHeroX+dx, tempHeroY+dy);
+	return NULL;
 }
+
+void replaceBonus(Game g, int x, int y){
+	Actor bonus = cellIsBonus(g, x, y);
+	if(bonus != NULL){
+		actorShow(g, bonus);
+	}
+}
+
+
 
 Actor* getAdjacentCells(Game g, int cx, int cy){
 	int arraySize = 8;
@@ -762,8 +781,8 @@ void gameAnimation(Game g) {
 	//	moveBonus(g);
 	//}
 	if(frame % MONSTER_ANIM_DELAY == 0){
-		for(int i = 0 ; i < N_MONSTERS ; i++) 
-			actorAnimation(g, g->monsters[i]);	
+		// for(int i = 0 ; i < N_MONSTERS ; i++) 
+		// 	actorAnimation(g, g->monsters[i]);	
 		isGameWon(g);
 	}
 	

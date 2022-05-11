@@ -422,16 +422,30 @@ void LoseGame(){
 		//tyQuit();
 }
 
+void redrawBonusCell(Game g, int x, int y){
+	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
+	for(int i = 0; i < numBonus; i++){
+		Actor bonus = g->bonusCells[i];
+		if(bonus != NULL && (bonus->x != x || bonus->y != y)){
+			actorShow(g, bonus);
+		}
+	}
+}
+
 /******************************************************************************
  * heroAnimation - The hero moves using the cursor keys
  * INCOMPLETE!
  ******************************************************************************/
 void heroAnimation(Game g, Actor a)
 {
+	int x = a->x;
+	int y = a->y;
 	int dx = tyKeyDeltaX(), dy = tyKeyDeltaY();
 	int nx = a->x + dx, ny = a->y + dy;
-	if (cellIsEmpty(g, nx, ny))
+	if (cellIsEmpty(g, nx, ny)){
 		actorMove(g, a, nx, ny);
+		redrawBonusCell(g, nx, ny);
+	}
 	else{
 		switch (g->world[nx][ny]->kind){
 			case CHASER:
@@ -440,7 +454,11 @@ void heroAnimation(Game g, Actor a)
 				break;
 			case BLOCK:
 				pushBlock(g, g->world[nx][ny], dx, dy);
+				redrawBonusCell(g, nx, ny);
 				break;
+			case BONUS_PLACE:
+				actorMove(g, a, nx, ny);		
+				redrawBonusCell(g, nx, ny);
 			default: break;
 		}
 	}
@@ -728,8 +746,8 @@ void gameAnimation(Game g) {
 	//	moveBonus(g);
 	//}
 	if(frame % MONSTER_ANIM_DELAY == 0){
-		for(int i = 0 ; i < N_MONSTERS ; i++) 
-			actorAnimation(g, g->monsters[i]);	
+		//for(int i = 0 ; i < N_MONSTERS ; i++) 
+		//	actorAnimation(g, g->monsters[i]);	
 		isGameWon(g);
 	}
 	
@@ -904,5 +922,5 @@ void tyHandleStart(void)
 	tySecondsSetZero();
 	tySetSpeed(5);
 	frame = 0;
-	game = gameInit(game);
+	game = gameInit(game);	
 }

@@ -4,10 +4,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
- 
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed May 11 14:56:31 2022
+# Make data base, printed on Wed May 11 16:07:21 2022
 
 # Variables
 
@@ -92,7 +91,7 @@ VSCODE_LOG_STACK = false
 # environment
 LC_NUMERIC = en_US.UTF-8
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-bf826d72-f342-4826-9f02-4ad5d2588707.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-87e9b196-0d0c-4352-b49f-c69524caeb8e.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -120,7 +119,7 @@ LOGNAME = ubuntu
 # makefile (from 'Makefile', line 55)
 ZDEFINES = $(EXTRA) -DOS=$(OS) $(DEFINES) -DUSE_WXWIDGETS $(shell wx-config --unicode --cxxflags)
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # automatic
 +F = $(notdir $+)
 # environment
@@ -278,13 +277,13 @@ Makefile:
 
 # Not a target:
 wxTiny.cpp:
+ 
 #  Implicit rule search has been done.
 #  Last modified 2022-05-10 15:41:11.784615305
 #  File has been updated.
 #  Successfully updated.
 
 compall:
- 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -306,7 +305,7 @@ obj/EyeBeast.o: .SHELLSTATUS := 0
 obj/EyeBeast.o: EyeBeast.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'EyeBeast'
-#  Last modified 2022-05-11 14:53:15.201064193
+#  Last modified 2022-05-11 16:04:05.718832587
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -332,7 +331,7 @@ obj/EyeBeast.o: EyeBeast.c
 
 obj:
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-11 14:53:15.197062384
+#  Last modified 2022-05-11 16:04:05.714830736
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 87):
@@ -346,7 +345,7 @@ obj:
 
 EyeBeast: obj obj/wxTiny.o obj/EyeBeast.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-11 14:53:15.585237786
+#  Last modified 2022-05-11 16:04:06.179045532
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -398,7 +397,7 @@ clean:
 # Not a target:
 EyeBeast.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-11 14:56:30.994021378
+#  Last modified 2022-05-11 16:07:20.000941781
 #  File has been updated.
 #  Successfully updated.
 
@@ -416,6 +415,6 @@ EyeBeast.c:
 # strcache performance: lookups = 65 / hit rate = 53%
 # hash-table stats:
 # Load=30/8192=0%, Rehash=0, Collisions=1/65=2%
-# Finished Make data base on Wed May 11 14:56:31 2022
+# Finished Make data base on Wed May 11 16:07:21 2022
 
  

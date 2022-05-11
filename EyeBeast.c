@@ -83,7 +83,7 @@ typedef char Line[MAX_LINE];
 
 typedef int Image;
 
-static Image emptyImg, heroImg, chaserImg, blockImg, boundaryImg, invalidImg, bonusPlaceImg;
+static Image emptyImg, heroImg, chaserImg, chaserFrozenImg, blockImg, boundaryImg, invalidImg, bonusPlaceImg;
 
 /* XPM */
 static tyImage empty_xpm = {
@@ -137,6 +137,29 @@ static tyImage chaser_xpm = {
 "   c None",
 ".  c #FFFFFF",
 "+  c #000000",
+"................",
+"...+++...+++....",
+"..++.++.+.+++...",
+".+..+++++++..+..",
+".+...+++++...+..",
+".+...+++++...+..",
+".+...+++++...+..",
+"..+...+.+...+...",
+"...+++...+++....",
+"................",
+"................",
+"....+++++++.....",
+"................",
+"................",
+"................",
+"................"};
+
+/* XPM */
+static tyImage chaserFrozen_xpm = {
+"16 16 3 1",
+"   c None",
+".  c #36A9E7",
+"+  c #8DFFF7",
 "................",
 "...+++...+++....",
 "..++.++.+.+++...",
@@ -258,6 +281,7 @@ void imagesCreate(void)
 	boundaryImg = tyCreateImage(boundary_xpm);
 	invalidImg = tyCreateImage(invalid_xpm);
 	bonusPlaceImg = tyCreateImage(bonusPlace_xpm);
+	chaserFrozenImg = tyCreateImage(chaserFrozen_xpm);
 }
 
 
@@ -304,6 +328,7 @@ typedef struct {
 	int x, y;
 	Image image;
 	bool isTasty;
+	bool isFrozen;
 	union {
 // specific fields for each kind
 		Hero hero;
@@ -320,8 +345,8 @@ typedef struct {
 #define N_BLOCKS		110
 #define MONSTER_ANIM_DELAY	10
 #define N_BONUS_CELLS_PER_CHUNK	4
-#define N_BONUS_CHUNK	4
-#define BONUS_MOVE_DELAY	10
+#define N_BONUS_CHUNK	2
+#define BONUS_MOVE_DELAY	9999999 //TODO change
 
 typedef struct {
 	Actor world[WORLD_SIZE_X][WORLD_SIZE_Y];
@@ -404,6 +429,7 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 	a->x = x;
 	a->y = y;
 	a->image = actorImage(kind);
+	a->isFrozen = false;
 	actorShow(g, a);
 	switch(kind){
 		case HERO:
@@ -504,7 +530,22 @@ void replaceBonus(Game g, int x, int y){
 	}
 }
 
-
+bool areAllBonusFilled(Game g){
+	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
+	int x;
+	int y;
+	for(int i = 0; i < numBonus; i++){
+		x = g->bonusCells[i]->x;
+		y = g->bonusCells[i]->y;
+		switch(g->world[x][y]->kind){
+			case BLOCK:
+				break;
+			default:
+				return false;
+		}
+	}
+	return true;
+}
 
 Actor* getAdjacentCells(Game g, int cx, int cy){
 	int arraySize = 8;
@@ -690,7 +731,7 @@ void installBonusChunk(Game g, int nChunk){
 	do{
 		x = 1 + tyRand(WORLD_SIZE_X - 2);	
 		y = 1 + tyRand(WORLD_SIZE_Y - 2);
-	} while(!cellIsEmpty(g, x, y) && isStuck(g, getAdjacentCells(g, x, y)));
+	} while(!cellIsEmpty(g, x, y) || isStuck(g, getAdjacentCells(g, x, y)));
 
 	g->bonusCells[count++] = actorNew(g, BONUS_PLACE, x, y); //First bonus cell
 
@@ -727,15 +768,18 @@ void isGameWon(Game g){
 	tyQuit();
 }
 
-// Used for debug purposes
-void fillWithBlocks(Game g){ 
-	for(int x = 0; x < WORLD_SIZE_X; x++){
-		for(int y = 0; y < WORLD_SIZE_Y; y++){
-			if(cellIsEmpty(g, x, y)){
-				actorNew(g, BLOCK, x, y);
-			}
+void moveBonus(Game g){
+	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
+	for(int i = 0; i < numBonus; i++){
+		switch(g->world[g->bonusCells[i]->x][g->bonusCells[i]->y]->kind){
+			case BONUS_PLACE:
+				actorHide(g, g->bonusCells[i]);
+				break;
+			default:
+				break;
 		}
 	}
+	gameInstallBonus(g);
 }
 
 /******************************************************************************
@@ -767,7 +811,7 @@ void gameRedraw(Game g)
 			Actor a = g->world[x][y];
 			if( !cellIsEmpty(g, x, y) )
 				actorShow(g, a);
-		}
+		} 
 }
 
 /******************************************************************************
@@ -777,15 +821,28 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
-	//if(frame % BONUS_MOVE_DELAY){
-	//	moveBonus(g);
-	//}
+	if(frame % BONUS_MOVE_DELAY == 0){
+		moveBonus(g);
+	}
 	if(frame % MONSTER_ANIM_DELAY == 0){
-		// for(int i = 0 ; i < N_MONSTERS ; i++) 
-		// 	actorAnimation(g, g->monsters[i]);	
+		 for(int i = 0 ; i < N_MONSTERS ; i++)
+		 	if(!g->monsters[i]->isFrozen){
+				actorAnimation(g, g->monsters[i]);
+			}
 		isGameWon(g);
 	}
 	
+}
+
+void checkIfBonus(Game g){
+	if(areAllBonusFilled(g)){
+		tyAlertDialog("You did it!", "Bonus is now activated for some time!");
+		for(int i = 0; i < N_MONSTERS; i++){
+			g->monsters[i]->isFrozen = true; // TODO only for a few seconds
+			//g->monsters[i]->image = chaserFrozen_xpm; (Segmentation fault)
+		}
+		moveBonus(g);
+	}
 }
 
 
@@ -946,7 +1003,8 @@ void tyHandleTime(void)
 {
 	status();
 	gameAnimation(game);
-	frame = frame + 1;
+	checkIfBonus(game);
+	frame++;
 }
 
 /****************************************************************************** 
@@ -955,7 +1013,7 @@ void tyHandleTime(void)
 void tyHandleStart(void)
 {
 	tySecondsSetZero();
-	tySetSpeed(5);
+	tySetSpeed(4);
 	frame = 0;
 	game = gameInit(game);	
 }

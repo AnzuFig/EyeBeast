@@ -318,15 +318,20 @@ typedef struct {
 #define WORLD_SIZE_Y	18
 #define N_MONSTERS		5
 #define N_BLOCKS		110
+#define MONSTER_ANIM_DELAY	10
+#define N_BONUS_CELLS_PER_CHUNK	4
+#define N_BONUS_CHUNK	4
+#define BONUS_MOVE_DELAY	10
 
 typedef struct {
 	Actor world[WORLD_SIZE_X][WORLD_SIZE_Y];
 	Actor hero;
 	Actor monsters[N_MONSTERS];
+	Actor bonusCells[N_BONUS_CELLS_PER_CHUNK * N_BONUS_CHUNK];
 } GameStruct, *Game;
 
 // 10 frames per second
-int frame; 
+int frame;
 
 /******************************************************************************
  * actorImage - Get the screen image corresponding to some kind of actor
@@ -430,6 +435,7 @@ void heroAnimation(Game g, Actor a)
 	else{
 		switch (g->world[nx][ny]->kind){
 			case CHASER:
+				actorHide(g, a);
 				LoseGame();
 				break;
 			case BLOCK:
@@ -621,6 +627,41 @@ void gameInstallHero(Game g)
 	g->hero = actorNew(g, HERO, x, y);
 }
 
+void installBonusChunk(Game g, int nChunk){
+	int x;
+	int y;
+	int tempX;
+	int tempY;
+	int count = nChunk * N_BONUS_CELLS_PER_CHUNK;
+	int randIndex;
+	do{
+		x = 1 + tyRand(WORLD_SIZE_X - 2);	
+		y = 1 + tyRand(WORLD_SIZE_Y - 2);
+	} while(!cellIsEmpty(g, x, y) && isStuck(g, getAdjacentCells(g, x, y)));
+
+	g->bonusCells[count++] = actorNew(g, BONUS_PLACE, x, y); //First bonus cell
+
+	for(int i = 1; i < N_BONUS_CELLS_PER_CHUNK; i++){ // The rest of the bonus cells
+		Actor* adjacent = getAdjacentCells(g, x, y);
+		if(isStuck(g, adjacent)){
+			return;
+		}
+		do{
+			tempX = x + (tyRand(3) - 1); 
+			tempY = y + (tyRand(3) - 1);
+		}while(!cellIsEmpty(g, tempX, tempY));
+		x = tempX;
+		y = tempY;
+		g->bonusCells[count++] = actorNew(g, BONUS_PLACE, x, y);
+	}
+}
+
+void gameInstallBonus(Game g){
+	for(int i = 0; i < N_BONUS_CHUNK; i++){
+		installBonusChunk(g, i);
+	}
+}
+
 void isGameWon(Game g){
 	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
 	for(int i = 0; i < numMonsters; i++){
@@ -657,6 +698,7 @@ Game gameInit(Game g)
 	gameInstallBlocks(g);
 	gameInstallHero(g); 
 	gameInstallMonsters(g);
+	gameInstallBonus(g);
 	return g;
 }
 
@@ -681,8 +723,11 @@ void gameRedraw(Game g)
  * INCOMPLETE!
 ******************************************************************************/
 void gameAnimation(Game g) {
-	actorAnimation(g, g->hero); 
-	if(frame % 10 == 0){
+	actorAnimation(g, g->hero);
+	//if(frame % BONUS_MOVE_DELAY){
+	//	moveBonus(g);
+	//}
+	if(frame % MONSTER_ANIM_DELAY == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
 			actorAnimation(g, g->monsters[i]);	
 		isGameWon(g);

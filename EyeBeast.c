@@ -422,12 +422,13 @@ void LoseGame(){
 		//tyQuit();
 }
 
-void redrawBonusCell(Game g, int x, int y){
+void replaceBonus(Game g, int x, int y){
 	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
 	for(int i = 0; i < numBonus; i++){
 		Actor bonus = g->bonusCells[i];
-		if(bonus != NULL && (bonus->x != x || bonus->y != y)){
+		if(bonus->x == x && bonus->y == y){
 			actorShow(g, bonus);
+			return;
 		}
 	}
 }
@@ -438,13 +439,11 @@ void redrawBonusCell(Game g, int x, int y){
  ******************************************************************************/
 void heroAnimation(Game g, Actor a)
 {
-	int x = a->x;
-	int y = a->y;
 	int dx = tyKeyDeltaX(), dy = tyKeyDeltaY();
 	int nx = a->x + dx, ny = a->y + dy;
 	if (cellIsEmpty(g, nx, ny)){
 		actorMove(g, a, nx, ny);
-		redrawBonusCell(g, nx, ny);
+		replaceBonus(g, nx - dx, ny - dy);
 	}
 	else{
 		switch (g->world[nx][ny]->kind){
@@ -454,11 +453,12 @@ void heroAnimation(Game g, Actor a)
 				break;
 			case BLOCK:
 				pushBlock(g, g->world[nx][ny], dx, dy);
-				redrawBonusCell(g, nx, ny);
+				replaceBonus(g, nx - dx, ny - dy);
 				break;
 			case BONUS_PLACE:
-				actorMove(g, a, nx, ny);		
-				redrawBonusCell(g, nx, ny);
+				actorMove(g, a, nx, ny);
+				replaceBonus(g, nx - dx, ny - dy);
+				break;
 			default: break;
 		}
 	}
@@ -509,45 +509,61 @@ bool isStuck (Game g, Actor* adjacentBlocks){
 	return true;
 }
 
+
+
 void chaserAnimation(Game g, Actor a){
+	int x = a->x;
+	int y = a->y;
 	int nx;
 	int ny;
 	int heroX = g->hero->x;
 	int heroY = g->hero->y;
 	
-	if(heroX > a->x){
-		nx = a->x + 1;
-	} else if (heroX < a->x){
-		nx = a->x - 1;
+	if(heroX > x){
+		nx = x + 1;
+	} else if (heroX < x){
+		nx = x - 1;
 	}
 	else {
-		nx = a->x;
+		nx = x;
 	}
 	
-	if(heroY > a->y){
-		ny = a->y + 1;
-	} else if (heroY < a->y){
-		ny = a->y - 1;
+	if(heroY > y){
+		ny = y + 1;
+	} else if (heroY < y){
+		ny = y - 1;
 	}
 	else {
-		ny = a->y;
+		ny = y;
 	}
 
 	if(g->world[nx][ny] != NULL){
 		if(g->world[nx][ny]->isTasty){
-			actorMove(g, a, nx, ny);	
+			actorMove(g, a, nx, ny);
+			replaceBonus(g, x, y);
 			LoseGame();
+		}
+		if(g->world[nx][ny]->kind == BONUS_PLACE){
+			actorMove(g, a, nx, ny);
+			replaceBonus(g, x, y);
+			return;
 		}
 	}
 	
-	if(!isStuck(g, getAdjacentCells(g, a->x, a->y))){
+	if(!isStuck(g, getAdjacentCells(g, x, y))){
 		while(!cellIsEmpty(g, nx, ny)){
-			nx = a->x + (tyRand(3) - 1);
-			ny = a->y + (tyRand(3) - 1);
+			nx = x + (tyRand(3) - 1);
+			ny = y + (tyRand(3) - 1);
+			if(g->world[nx][ny] != NULL && g->world[nx][ny]->kind == BONUS_PLACE){
+				actorMove(g, a, nx, ny);
+				replaceBonus(g, x, y);
+				return;
+			}
 		}
 	}
 
 	actorMove(g, a, nx, ny);
+	replaceBonus(g, x, y);
 }
 
 /******************************************************************************
@@ -746,8 +762,8 @@ void gameAnimation(Game g) {
 	//	moveBonus(g);
 	//}
 	if(frame % MONSTER_ANIM_DELAY == 0){
-		//for(int i = 0 ; i < N_MONSTERS ; i++) 
-		//	actorAnimation(g, g->monsters[i]);	
+		for(int i = 0 ; i < N_MONSTERS ; i++) 
+			actorAnimation(g, g->monsters[i]);	
 		isGameWon(g);
 	}
 	

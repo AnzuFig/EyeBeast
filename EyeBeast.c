@@ -83,7 +83,7 @@ typedef char Line[MAX_LINE];
 
 typedef int Image;
 
-static Image emptyImg, heroImg, chaserImg, blockImg, boundaryImg, invalidImg;
+static Image emptyImg, heroImg, chaserImg, blockImg, boundaryImg, invalidImg, bonusPlaceImg;
 
 /* XPM */
 static tyImage empty_xpm = {
@@ -150,6 +150,29 @@ static tyImage chaser_xpm = {
 "................",
 "....+++++++.....",
 "................",
+"................",
+"................",
+"................"};
+
+/* XPM */
+static tyImage bonusPlace_xpm= {
+"16 16 3 1",
+"   c None",
+".	c #FFFFFF",
+"+	c #13AE4B",
+"................",
+"................",
+"..+..........+..",
+"...++......++...",
+"....++....++....",
+".....++..++.....",
+"......++++......",
+".......++.......",
+"......++++......",
+".....++..++.....",
+"....++....++....",
+"...++......++...",
+"..+..........+..",
 "................",
 "................",
 "................"};
@@ -234,6 +257,7 @@ void imagesCreate(void)
 	blockImg = tyCreateImage(block_xpm);
 	boundaryImg = tyCreateImage(boundary_xpm);
 	invalidImg = tyCreateImage(invalid_xpm);
+	bonusPlaceImg = tyCreateImage(bonusPlace_xpm);
 }
 
 
@@ -251,7 +275,7 @@ void imagesCreate(void)
 #define ACTOR_PIXELS_Y	16
 
 typedef enum {
-	EMPTY, HERO, CHASER, BLOCK, BOUNDARY
+	EMPTY, HERO, CHASER, BLOCK, BOUNDARY, BONUS_PLACE
 } ActorKind;
 
 typedef struct {
@@ -271,6 +295,10 @@ typedef struct {
 } Boundary;
 
 typedef struct {
+
+} BonusPlace;
+
+typedef struct {
 // factored common fields
 	ActorKind kind;
 	int x, y;
@@ -282,6 +310,7 @@ typedef struct {
 		Chaser chaser;
 		Block block;
 		Boundary boundary;
+		BonusPlace bonusPlace;
 	} u;
 } ActorStruct, *Actor;
 
@@ -310,6 +339,7 @@ Image actorImage(ActorKind kind)
 		case CHASER:	return chaserImg;
 		case BLOCK:		return blockImg;
 		case BOUNDARY:	return boundaryImg;
+		case BONUS_PLACE: return bonusPlaceImg;
 		default:		return invalidImg;
 	}
 }
@@ -382,8 +412,9 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 }
 
 void LoseGame(){
-		tyAlertDialog("Game over", "You lost!");
-		tyQuit();
+		tyAlertDialog("", "Dead Meat!!!");
+		comandRestart();
+		//tyQuit();
 }
 
 /******************************************************************************
@@ -480,6 +511,7 @@ void chaserAnimation(Game g, Actor a){
 
 	if(g->world[nx][ny] != NULL){
 		if(g->world[nx][ny]->isTasty){
+			actorMove(g, a, nx, ny);	
 			LoseGame();
 		}
 	}
@@ -597,7 +629,7 @@ void isGameWon(Game g){
 			return;
 		}
 	}
-	tyAlertDialog("You won", "You win!!!");
+	tyAlertDialog("", "You win!!!");
 	tyQuit();
 }
 
@@ -650,7 +682,6 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero); 
-	
 	if(frame % 10 == 0){
 		for(int i = 0 ; i < N_MONSTERS ; i++) 
 			actorAnimation(g, g->monsters[i]);	

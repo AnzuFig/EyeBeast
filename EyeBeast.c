@@ -158,24 +158,24 @@ static tyImage chaser_xpm = {
 static tyImage chaserFrozen_xpm = {
 "16 16 3 1",
 "   c None",
-".  c #36A9E7",
-"+  c #8DFFF7",
-"................",
-"...+++...+++....",
-"..++.++.+.+++...",
-".+..+++++++..+..",
-".+...+++++...+..",
-".+...+++++...+..",
-".+...+++++...+..",
-"..+...+.+...+...",
-"...+++...+++....",
-"................",
-"................",
-"....+++++++.....",
-"................",
-"................",
-"................",
-"................"};
+".  c #8DFFF7",
+"+  c #36A9E7",
+"++++++++++++++++",
+"+..+++...+++...+",
+"+.++.++.+.+++..+",
+"++..+++++++..+.+",
+"++...+++++...+.+",
+"++...+++++...+.+",
+"++...+++++...+.+",
+"+.+...+.+...+..+",
+"+..+++...+++...+",
+"+..............+",
+"+..............+",
+"+...+++++++....+",
+"+..............+",
+"+..............+",
+"+..............+",
+"++++++++++++++++"};
 
 /* XPM */
 static tyImage bonusPlace_xpm= {
@@ -357,6 +357,7 @@ typedef struct {
 
 // 10 frames per second
 int frame;
+int timeSinceBonus;
 
 /******************************************************************************
  * actorImage - Get the screen image corresponding to some kind of actor
@@ -867,9 +868,18 @@ void checkIfBonus(Game g){
 		tyAlertDialog("You did it!", "The monsters will be frozen for some time!\nTake advantage of it!");
 		for(int i = 0; i < N_MONSTERS; i++){
 			g->monsters[i]->isFrozen = true; // TODO only for a few seconds
+			g->monsters[i]->image = chaserFrozenImg;
+		}
+		timeSinceBonus = frame;
+		moveBonus(g);
+	}
+	if((frame - timeSinceBonus) == 100){
+		for(int i = 0; i < N_MONSTERS; i++){
+			g->monsters[i]->isFrozen = false; // TODO only for a few seconds
+			g->monsters[i]->image = chaserImg;
 			//g->monsters[i]->image = chaserFrozen_xpm; (Segmentation fault)
 		}
-		moveBonus(g);
+		timeSinceBonus = 0;
 	}
 }
 
@@ -1043,5 +1053,6 @@ void tyHandleStart(void)
 	tySecondsSetZero();
 	tySetSpeed(4);
 	frame = 0;
+	timeSinceBonus = 0;
 	game = gameInit(game);	
 }

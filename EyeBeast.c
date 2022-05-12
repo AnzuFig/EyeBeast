@@ -21,12 +21,13 @@ tab = 4 spaces
 
 Comments:
 
-?????????????????????????
-?????????????????????????
-?????????????????????????
-?????????????????????????
-?????????????????????????
-?????????????????????????
+We implemented the following extra feature:
+There will be various green crosses, grouped by chunks, drawn "on the floor" 
+of free cells of the board. If the player manages to cover all the crosses 
+with boxes, while evading the monsters, he/she will be rewarded with a 
+"prize". In this case, we decided that the prize is having the monsters 
+frozen for a few seconds, making them harmless. The player can (and should)
+then take advantage of it, by trapping them while they are no threat.
 
 
  Place here the names and numbers of the authors, plus some comments, as
@@ -83,7 +84,8 @@ typedef char Line[MAX_LINE];
 
 typedef int Image;
 
-static Image emptyImg, heroImg, chaserImg, chaserFrozenImg, blockImg, boundaryImg, invalidImg, bonusPlaceImg;
+static Image emptyImg, heroImg, chaserImg, 
+chaserFrozenImg, blockImg, boundaryImg, invalidImg, bonusPlaceImg;
 
 /* XPM */
 static tyImage empty_xpm = {
@@ -353,12 +355,10 @@ typedef struct {
 	Actor hero;
 	Actor monsters[N_MONSTERS];
 	Actor bonusCells[N_BONUS_CELLS_PER_CHUNK * N_BONUS_CHUNK];
+	int tick; // Should be about 10 ticks per second
+	int ticksSinceBonus;
 } GameStruct, *Game;
 
-// 10 frames per second
-int frame;
-
-int timeSinceBonus;
 
 /******************************************************************************
  * actorImage - Get the screen image corresponding to some kind of actor
@@ -446,8 +446,7 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 
 void LoseGame(){
 		tyAlertDialog("", "Dead Meat!!!");
-		comandRestart();
-		//tyQuit();
+		tyQuit();
 }
 
 /******************************************************************************
@@ -656,7 +655,8 @@ void chaserAnimation(Game g, Actor a){
 		while(!cellIsEmpty(g, nx, ny)){
 			nx = x + (tyRand(3) - 1);
 			ny = y + (tyRand(3) - 1);
-			if(g->world[nx][ny] != NULL && g->world[nx][ny]->kind == BONUS_PLACE){
+			if(g->world[nx][ny] != NULL && 
+			g->world[nx][ny]->kind == BONUS_PLACE){
 				actorMove(g, a, nx, ny);
 				replaceBonus(g, x, y);
 				return;
@@ -719,8 +719,8 @@ void gameInstallBlocks(Game g)
 		int nx;
 		int ny;
 		do{
-			nx = 1 + tyRand(WORLD_SIZE_X - 2); // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + tyRand(WORLD_SIZE_Y - 2); // Generates a random integer between 1 and WORLD_SIZE_Y
+			nx = 1 + tyRand(WORLD_SIZE_X - 2);
+			ny = 1 + tyRand(WORLD_SIZE_Y - 2);
 		} while(!cellIsEmpty(g, nx, ny));
 		actorNew(g, BLOCK, nx, ny);
 	}
@@ -737,9 +737,10 @@ void gameInstallMonsters(Game g)
 		int heroX = g->hero->x;
 		int heroY = g->hero->y;
 		do{
-			nx = 1 + tyRand(WORLD_SIZE_X - 2); // Generates a random integer between 1 and WORLD_SIZE_X 
-			ny = 1 + tyRand(WORLD_SIZE_Y - 2);; // Generates a random integer between 1 and WORLD_SIZE_Y	
-		} while(!cellIsEmpty(g, nx, ny) || tyDistance(heroX, heroY, nx, ny) <= 4 );
+			nx = 1 + tyRand(WORLD_SIZE_X - 2);
+			ny = 1 + tyRand(WORLD_SIZE_Y - 2);
+		} while(!cellIsEmpty(g, nx, ny) || 
+				tyDistance(heroX, heroY, nx, ny) <= 4 );
 		g->monsters[i] = actorNew(g, CHASER, nx, ny);
 	}
 	
@@ -776,9 +777,11 @@ void installBonusChunk(Game g, int nChunk){
 		y = 1 + tyRand(WORLD_SIZE_Y - 2);
 	} while(!cellIsEmpty(g, x, y) || isStuck(g, getAdjacentCells(g, x, y)));
 
-	g->bonusCells[count++] = actorNew(g, BONUS_PLACE, x, y); //First bonus cell
+	//First bonus cell
+	g->bonusCells[count++] = actorNew(g, BONUS_PLACE, x, y); 
 
-	for(int i = 1; i < N_BONUS_CELLS_PER_CHUNK; i++){ // The rest of the bonus cells
+	// The rest of the bonus cells
+	for(int i = 1; i < N_BONUS_CELLS_PER_CHUNK; i++){ 
 		Actor* adjacent = getAdjacentCells(g, x, y);
 		if(isStuck(g, adjacent)){
 			return;
@@ -808,7 +811,8 @@ void gameInstallBonus(Game g){
 void isGameWon(Game g){
 	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
 	for(int i = 0; i < numMonsters; i++){
-		Actor* adjacent = getAdjacentCells(g, g->monsters[i]->x, g->monsters[i]->y);
+		Actor* adjacent = getAdjacentCells(g, g->monsters[i]->x,
+											 g->monsters[i]->y);
 		if(!isStuck(g, adjacent)){
 			return;
 		}
@@ -848,6 +852,8 @@ Game gameInit(Game g)
 	gameInstallHero(g); 
 	gameInstallMonsters(g);
 	gameInstallBonus(g);
+	g->tick = 0;
+	g->ticksSinceBonus = 0;
 	return g;
 }
 
@@ -872,7 +878,7 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
-	if(frame % MONSTER_ANIM_DELAY == 0){
+	if(g->tick % MONSTER_ANIM_DELAY == 0){
 		 for(int i = 0 ; i < N_MONSTERS ; i++)
 		 	if(!g->monsters[i]->isFrozen){
 				actorAnimation(g, g->monsters[i]);
@@ -889,15 +895,15 @@ void checkIfBonus(Game g){
 			g->monsters[i]->isFrozen = true;
 			g->monsters[i]->image = chaserFrozenImg;
 		}
-		timeSinceBonus = frame;
+		g->ticksSinceBonus = g->tick;
 		moveBonus(g);
 	}
-	if((frame - timeSinceBonus) == FREEZE_TIME){
+	if((g->tick - g->ticksSinceBonus) == FREEZE_TIME){
 		for(int i = 0; i < N_MONSTERS; i++){
 			g->monsters[i]->isFrozen = false;
 			g->monsters[i]->image = chaserImg;
 		}
-		timeSinceBonus = 0;
+		g->ticksSinceBonus = 0;
 	}
 }
 
@@ -1060,7 +1066,7 @@ void tyHandleTime(void)
 	status();
 	gameAnimation(game);
 	checkIfBonus(game);
-	frame++;
+	game->tick++;
 }
 
 /****************************************************************************** 
@@ -1070,7 +1076,5 @@ void tyHandleStart(void)
 {
 	tySecondsSetZero();
 	tySetSpeed(4);
-	frame = 0;
-	timeSinceBonus = 0;
 	game = gameInit(game);	
 }

@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed May 11 21:11:01 2022
+# Make data base, printed on Thu May 12 10:03:19 2022
 
 # Variables
 
@@ -46,7 +46,6 @@ VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 _ = /home/ubuntu/.vscode-server/bin/da15b6fd3ef856477bf6f4fb29ba1b7af717770d/node
 # makefile (from 'Makefile', line 15)
 CFLAGS = -O1 -w -Wno-invalid-source-encoding
- 
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # makefile (from 'Makefile', line 20)
@@ -80,7 +79,7 @@ CPP = g++
 # environment
 VSCODE_CWD = /home/ubuntu
 # environment
-SSH_CONNECTION = 10.0.2.2 53467 10.0.2.15 22
+SSH_CONNECTION = 10.0.2.2 57169 10.0.2.15 22
 # environment
 PATH = /home/ubuntu/.vscode-server/bin/da15b6fd3ef856477bf6f4fb29ba1b7af717770d/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 # environment
@@ -92,7 +91,7 @@ VSCODE_LOG_STACK = false
 # environment
 LC_NUMERIC = en_US.UTF-8
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-1f2e7f46-6bf7-4864-8efc-1d8a3e88c875.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-1ef7fc14-83d3-4de3-87f4-398353e37e8d.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -168,7 +167,7 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 10.0.2.2 53467 22
+SSH_CLIENT = 10.0.2.2 57169 22
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
@@ -278,6 +277,7 @@ Makefile:
 wxTiny.cpp:
 #  Implicit rule search has been done.
 #  Last modified 2022-05-10 15:41:11.784615305
+ 
 #  File has been updated.
 #  Successfully updated.
 
@@ -303,7 +303,7 @@ obj/EyeBeast.o: .SHELLSTATUS := 0
 obj/EyeBeast.o: EyeBeast.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'EyeBeast'
-#  Last modified 2022-05-11 20:01:25.49823852
+#  Last modified 2022-05-11 23:45:38.111352897
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
@@ -317,7 +317,6 @@ obj/EyeBeast.o: EyeBeast.c
 # automatic
 # | := 
 # automatic
- 
 # < := EyeBeast.c
 # automatic
 # ^ := EyeBeast.c
@@ -330,7 +329,7 @@ obj/EyeBeast.o: EyeBeast.c
 
 obj:
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-11 20:01:25.49423652
+#  Last modified 2022-05-11 23:45:38.107352755
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 87):
@@ -344,7 +343,7 @@ obj:
 
 EyeBeast: obj obj/wxTiny.o obj/EyeBeast.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-11 20:01:27.441376245
+#  Last modified 2022-05-11 23:45:38.575369407
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -396,7 +395,7 @@ clean:
 # Not a target:
 EyeBeast.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-11 21:11:00.218101103
+#  Last modified 2022-05-12 10:03:18.722501486
 #  File has been updated.
 #  Successfully updated.
 
@@ -414,6 +413,6 @@ EyeBeast.c:
 # strcache performance: lookups = 65 / hit rate = 53%
 # hash-table stats:
 # Load=30/8192=0%, Rehash=0, Collisions=1/65=2%
-# Finished Make data base on Wed May 11 21:11:01 2022
+# Finished Make data base on Thu May 12 10:03:19 2022
 
  

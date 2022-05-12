@@ -319,7 +319,7 @@ typedef struct {
 } Boundary;
 
 typedef struct {
-
+// specific fields can go here, but probably none will be needed
 } BonusPlace;
 
 typedef struct {
@@ -480,7 +480,6 @@ bool pushBlock(Game g, Actor a, int dx, int dy) {
 
 /******************************************************************************
  * heroAnimation - The hero moves using the cursor keys
- * INCOMPLETE!
  ******************************************************************************/
 void heroAnimation(Game g, Actor a)
 {
@@ -530,6 +529,9 @@ void replaceBonus(Game g, int x, int y){
 	}
 }
 
+/******************************************************************************
+ * areAllBonusFilled - Verifies if all the bonus spots have a block on top
+ ******************************************************************************/
 bool areAllBonusFilled(Game g){
 	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
 	int x;
@@ -547,6 +549,9 @@ bool areAllBonusFilled(Game g){
 	return true;
 }
 
+/******************************************************************************
+ * getAdjacentCells - Returns all the adjacent cell (actors) in an Actor array
+ ******************************************************************************/
 Actor* getAdjacentCells(Game g, int cx, int cy){
 	int arraySize = 8;
 	int count = 0;
@@ -561,16 +566,30 @@ Actor* getAdjacentCells(Game g, int cx, int cy){
 	return adjacentCells;
 }
 
+/******************************************************************************
+ * isStuck - Verifies if all the adjacent cells given by the actor array are not
+ * empty.
+ ******************************************************************************/
 bool isStuck (Game g, Actor* adjacentBlocks){
 	for(int i = 0; i < 8; i++){
-		if(adjacentBlocks[i] == NULL)
+		if(adjacentBlocks[i] == NULL){
 			return false;
+		}
+		switch(adjacentBlocks[i]->kind){ // Blocks that don't count
+			case BONUS_PLACE:
+				return false;
+				break;
+			default: break;
+		}
 	}
 	return true;
 }
 
 
-
+/******************************************************************************
+ * chaserAnimation - The chaser tries to reach the player in a straight line.
+ * If there is an obstacle, it moves to a random adjacent cell
+ ******************************************************************************/
 void chaserAnimation(Game g, Actor a){
 	int x = a->x;
 	int y = a->y;
@@ -628,7 +647,6 @@ void chaserAnimation(Game g, Actor a){
 
 /******************************************************************************
  * actorAnimation - The actor behaves according to its kind
- * INCOMPLETE!
  ******************************************************************************/
 void actorAnimation(Game g, Actor a)
 {
@@ -670,7 +688,6 @@ void gameInstallBoundaries(Game g)
 
 /******************************************************************************
  * gameInstallBlocks - Install the movable blocks
- * COMPLETE!
  ******************************************************************************/
 void gameInstallBlocks(Game g)
 {
@@ -688,7 +705,6 @@ void gameInstallBlocks(Game g)
 
 /******************************************************************************
  * gameInstallMonsters - Install the monsters
- * COMPLETE!
  ******************************************************************************/
 void gameInstallMonsters(Game g)
 {	
@@ -708,7 +724,6 @@ void gameInstallMonsters(Game g)
 
 /******************************************************************************
  * gameInstallHero - Install the hero
- * COMPLETE! This code is to change
  ******************************************************************************/
 void gameInstallHero(Game g)
 {	
@@ -721,6 +736,11 @@ void gameInstallHero(Game g)
 	g->hero = actorNew(g, HERO, x, y);
 }
 
+
+/******************************************************************************
+ * installBonusChunk - Install a chunk of bonus cells.
+ * 	If possible, the chunk should try to have 4 bonus spots.
+ ******************************************************************************/
 void installBonusChunk(Game g, int nChunk){
 	int x;
 	int y;
@@ -750,12 +770,18 @@ void installBonusChunk(Game g, int nChunk){
 	}
 }
 
+/******************************************************************************
+ * gameInstallBonus - Install ALL the bonus spots
+ ******************************************************************************/
 void gameInstallBonus(Game g){
 	for(int i = 0; i < N_BONUS_CHUNK; i++){
 		installBonusChunk(g, i);
 	}
 }
 
+/******************************************************************************
+ * isGameWon - Verifies if the game is won, ie. all the monsters are stuck
+ ******************************************************************************/
 void isGameWon(Game g){
 	int numMonsters = sizeof(g->monsters) / sizeof(Actor);
 	for(int i = 0; i < numMonsters; i++){
@@ -768,6 +794,9 @@ void isGameWon(Game g){
 	tyQuit();
 }
 
+/******************************************************************************
+ * moveBonus - Moves the bonus chunks to another random place
+ ******************************************************************************/
 void moveBonus(Game g){
 	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
 	for(int i = 0; i < numBonus; i++){
@@ -817,7 +846,6 @@ void gameRedraw(Game g)
 /******************************************************************************
  * gameAnimation - Sends animation events to all the animated actors
  * This function is called every tenth of a second (more or less...)
- * INCOMPLETE!
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
@@ -836,7 +864,7 @@ void gameAnimation(Game g) {
 
 void checkIfBonus(Game g){
 	if(areAllBonusFilled(g)){
-		tyAlertDialog("You did it!", "Bonus is now activated for some time!");
+		tyAlertDialog("You did it!", "The monsters will be frozen for some time!\nTake advantage of it!");
 		for(int i = 0; i < N_MONSTERS; i++){
 			g->monsters[i]->isFrozen = true; // TODO only for a few seconds
 			//g->monsters[i]->image = chaserFrozen_xpm; (Segmentation fault)

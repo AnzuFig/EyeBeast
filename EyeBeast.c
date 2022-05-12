@@ -482,6 +482,30 @@ bool pushBlock(Game g, Actor a, int dx, int dy) {
 }
 
 /******************************************************************************
+ * cellIsBonus - Returns the bonus actor if cell is bonus
+ ******************************************************************************/
+Actor cellIsBonus(Game g, int x, int y){
+	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
+	for(int i = 0; i < numBonus; i++){
+		Actor bonus = g->bonusCells[i];
+		if(bonus->x == x && bonus->y == y){
+			return bonus;
+		}
+	}
+	return NULL;
+}
+/******************************************************************************
+ * replaceBonus - If there is a bonus place in the given coordinates, re-show
+ * it.
+ ******************************************************************************/
+void replaceBonus(Game g, int x, int y){
+	Actor bonus = cellIsBonus(g, x, y);
+	if(bonus != NULL){
+		actorShow(g, bonus);
+	}
+}
+
+/******************************************************************************
  * heroAnimation - The hero moves using the cursor keys
  ******************************************************************************/
 void heroAnimation(Game g, Actor a)
@@ -511,30 +535,7 @@ void heroAnimation(Game g, Actor a)
 	}
 }
 
-/******************************************************************************
- * cellIsBonus - Returns the bonus actor if cell is bonus
- ******************************************************************************/
-Actor cellIsBonus(Game g, int x, int y){
-	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
-	for(int i = 0; i < numBonus; i++){
-		Actor bonus = g->bonusCells[i];
-		if(bonus->x == x && bonus->y == y){
-			return bonus;
-		}
-	}
-	return NULL;
-}
 
-/******************************************************************************
- * replaceBonus - If there is a bonus place in the given coordinates, re-show
- * it.
- ******************************************************************************/
-void replaceBonus(Game g, int x, int y){
-	Actor bonus = cellIsBonus(g, x, y);
-	if(bonus != NULL){
-		actorShow(g, bonus);
-	}
-}
 
 /******************************************************************************
  * areAllBonusFilled - Verifies if all the bonus spots have a block on top

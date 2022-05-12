@@ -30,9 +30,9 @@ frozen for a few seconds, making them harmless. The player can (and should)
 then take advantage of it, by trapping them while they are no threat.
 
 
- Place here the names and numbers of the authors, plus some comments, as
-Â asked in the listing of the project. Do not deliver an anonymous file with
- unknown authors.
+	Francisco Freitas 60313 MIEI
+	Guilherme Figueira 60288 MIEI
+			FCT 2021/2022
 */
 
 /******************************************************************************/
@@ -675,7 +675,11 @@ void actorAnimation(Game g, Actor a)
 {
 	switch( a->kind ) {
 		case HERO: heroAnimation(g, a); break;
-		case CHASER: chaserAnimation(g, a); break;
+		case CHASER: 
+			if(!(a->isFrozen)){
+				chaserAnimation(g, a);
+			}
+			break;
 		default: break;
 	}
 }
@@ -887,31 +891,53 @@ void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
 	if(g->tick % MONSTER_ANIM_DELAY == 0){
 		 for(int i = 0 ; i < N_MONSTERS ; i++)
-		 	if(!g->monsters[i]->isFrozen){
-				actorAnimation(g, g->monsters[i]);
-			}
+			actorAnimation(g, g->monsters[i]);
 		isGameWon(g);
+	}
+	
+}
+
+/******************************************************************************
+ * freeMonsters - Freezes all the monsters in the given monster array
+ * if toFreeze is true, otherwise unfreezes.
+******************************************************************************/
+void freeMonsters(Actor* a, int num, bool toFreeze){
+	for(int i = 0; i < num; i++){
+			a[i]->isFrozen = toFreeze;
+			if(toFreeze)
+				a[i]->image = chaserFrozenImg;
+			else
+				a[i]->image = chaserImg;
+		}
+}
+
+/******************************************************************************
+ * freezeActors - Freezes all the actors in the given actor array
+ * if toFreeze is true, otherwise unfreezes.
+******************************************************************************/
+void freezeActors(Actor* a, int num, bool toFreeze){
+	
+	switch (a[0]->kind){
+	case CHASER:
+		freeMonsters(a, num, toFreeze);
+		break;
+	default:
+		break;
 	}
 	
 }
 
 void checkIfBonus(Game g){
 	if(areAllBonusFilled(g)){
-		tyAlertDialog("You did it!", "The monsters will be frozen\
+		tyAlertDialog("You did it!", "The monsters will be frozen \
 for some time!\nTake advantage of it!");
-		for(int i = 0; i < N_MONSTERS; i++){
-			g->monsters[i]->isFrozen = true;
-			g->monsters[i]->image = chaserFrozenImg;
-		}
+		freezeActors(g->monsters, N_MONSTERS, true);
 		g->ticksSinceBonus = g->tick;
 		moveBonus(g);
 	}
 	if((g->tick - g->ticksSinceBonus) == FREEZE_TIME){
-		for(int i = 0; i < N_MONSTERS; i++){
-			g->monsters[i]->isFrozen = false;
-			g->monsters[i]->image = chaserImg;
-		}
 		g->ticksSinceBonus = 0;
+		freezeActors(g->monsters, N_MONSTERS, false);
 	}
 }
 

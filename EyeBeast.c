@@ -346,7 +346,7 @@ typedef struct {
 #define MONSTER_ANIM_DELAY	10
 #define N_BONUS_CELLS_PER_CHUNK	4
 #define N_BONUS_CHUNK	2
-#define BONUS_MOVE_DELAY	9999999 //TODO change
+#define FREEZE_TIME		110
 
 typedef struct {
 	Actor world[WORLD_SIZE_X][WORLD_SIZE_Y];
@@ -357,6 +357,7 @@ typedef struct {
 
 // 10 frames per second
 int frame;
+
 int timeSinceBonus;
 
 /******************************************************************************
@@ -449,7 +450,9 @@ void LoseGame(){
 		//tyQuit();
 }
 
-// Returns true if sucessful, false otherwise
+/******************************************************************************
+ * pushBlock - Returns true if sucessful, false otherwise.
+ ******************************************************************************/
 bool pushBlock(Game g, Actor a, int dx, int dy) {
 	Actor block = a;
 	bool canContinue = true;
@@ -493,8 +496,10 @@ void heroAnimation(Game g, Actor a)
 	else{
 		switch (g->world[nx][ny]->kind){
 			case CHASER:
-				actorHide(g, a);
-				LoseGame();
+				if(!g->world[nx][ny]->isFrozen){
+					actorHide(g, a);
+					LoseGame();
+				}
 				break;
 			case BLOCK:
 				pushBlock(g, g->world[nx][ny], dx, dy);
@@ -511,7 +516,9 @@ void heroAnimation(Game g, Actor a)
 	}
 }
 
-// Returns the bonus actor if cell is bonus
+/******************************************************************************
+ * cellIsBonus - Returns the bonus actor if cell is bonus
+ ******************************************************************************/
 Actor cellIsBonus(Game g, int x, int y){
 	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
 	for(int i = 0; i < numBonus; i++){
@@ -523,6 +530,10 @@ Actor cellIsBonus(Game g, int x, int y){
 	return NULL;
 }
 
+/******************************************************************************
+ * replaceBonus - If there is a bonus place in the given coordinates, re-show
+ * it.
+ ******************************************************************************/
 void replaceBonus(Game g, int x, int y){
 	Actor bonus = cellIsBonus(g, x, y);
 	if(bonus != NULL){
@@ -619,6 +630,17 @@ void chaserAnimation(Game g, Actor a){
 
 	if(g->world[nx][ny] != NULL){
 		if(g->world[nx][ny]->isTasty){
+			switch(g->world[nx][ny]->kind){
+				case HERO:
+					actorMove(g, a, nx, ny);
+					replaceBonus(g, x, y);
+					LoseGame();
+					break;
+				default:
+					actorMove(g, a, nx, ny);
+					replaceBonus(g, x, y);
+					break;
+			}
 			actorMove(g, a, nx, ny);
 			replaceBonus(g, x, y);
 			LoseGame();
@@ -850,9 +872,6 @@ void gameRedraw(Game g)
 ******************************************************************************/
 void gameAnimation(Game g) {
 	actorAnimation(g, g->hero);
-	if(frame % BONUS_MOVE_DELAY == 0){
-		moveBonus(g);
-	}
 	if(frame % MONSTER_ANIM_DELAY == 0){
 		 for(int i = 0 ; i < N_MONSTERS ; i++)
 		 	if(!g->monsters[i]->isFrozen){
@@ -867,17 +886,16 @@ void checkIfBonus(Game g){
 	if(areAllBonusFilled(g)){
 		tyAlertDialog("You did it!", "The monsters will be frozen for some time!\nTake advantage of it!");
 		for(int i = 0; i < N_MONSTERS; i++){
-			g->monsters[i]->isFrozen = true; // TODO only for a few seconds
+			g->monsters[i]->isFrozen = true;
 			g->monsters[i]->image = chaserFrozenImg;
 		}
 		timeSinceBonus = frame;
 		moveBonus(g);
 	}
-	if((frame - timeSinceBonus) == 100){
+	if((frame - timeSinceBonus) == FREEZE_TIME){
 		for(int i = 0; i < N_MONSTERS; i++){
-			g->monsters[i]->isFrozen = false; // TODO only for a few seconds
+			g->monsters[i]->isFrozen = false;
 			g->monsters[i]->image = chaserImg;
-			//g->monsters[i]->image = chaserFrozen_xpm; (Segmentation fault)
 		}
 		timeSinceBonus = 0;
 	}

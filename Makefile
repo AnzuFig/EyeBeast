@@ -20,7 +20,7 @@ OBJ_DIR = obj
 DEBUG =
 NAMES = wxTiny $(APP)
 OS = $(shell uname | cut -c 1-7)
-EXTRA = -std=c11
+#EXTRA = -std=c11
 
 
 ##############################################################################

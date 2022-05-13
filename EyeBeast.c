@@ -305,23 +305,23 @@ typedef enum {
 } ActorKind;
 
 typedef struct {
-// specific fields can go here, but probably none will be needed
+
 } Hero;
 
 typedef struct {
-// specific fields can go here, but probably none will be needed
+
 } Chaser;
 
 typedef struct {
-// specific fields can go here, but probably none will be needed
+
 } Block;
 
 typedef struct {
-// specific fields can go here, but probably none will be needed
+
 } Boundary;
 
 typedef struct {
-// specific fields can go here, but probably none will be needed
+
 } BonusPlace;
 
 typedef struct {
@@ -331,6 +331,8 @@ typedef struct {
 	Image image;
 	bool isTasty;
 	bool isFrozen;
+	bool isWalkable;
+	bool isPushable;
 	union {
 // specific fields for each kind
 		Hero hero;
@@ -432,18 +434,27 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 	a->y = y;
 	a->image = actorImage(kind);
 	a->isFrozen = false;
-	actorShow(g, a);
+	a->isPushable = false;
+	a->isTasty = false;
+	a->isWalkable = false;
 	switch(kind){
 		case HERO:
 			a->isTasty = true;
 			break;
+		case BONUS_PLACE:
+			a->isWalkable = true;
+		case BLOCK:
+			a->isPushable = true;
 		default:
-			a->isTasty = false;
 			break;
 	}
+	actorShow(g, a);
 	return a;
 }
 
+/******************************************************************************
+ * LoseGame - Displays lose message and quits the game
+ ******************************************************************************/
 void LoseGame(){
 		tyAlertDialog("", "Dead Meat!!!");
 		tyQuit();
@@ -512,26 +523,15 @@ void heroAnimation(Game g, Actor a)
 {
 	int dx = tyKeyDeltaX(), dy = tyKeyDeltaY();
 	int nx = a->x + dx, ny = a->y + dy;
-	if (cellIsEmpty(g, nx, ny)){
+	if (cellIsEmpty(g, nx, ny) || g->world[nx][ny]->isWalkable){
 		actorMove(g, a, nx, ny);
 		replaceBonus(g, nx - dx, ny - dy);
 	}
-	else{
-		switch (g->world[nx][ny]->kind){
-			case CHASER:
-				break;
-			case BLOCK:
-				pushBlock(g, g->world[nx][ny], dx, dy);
+	else if(g->world[nx][ny]->isPushable){
+		pushBlock(g, g->world[nx][ny], dx, dy);
 				if(nx-dx != a->x || ny-dy != a->y){
 					replaceBonus(g, nx - dx, ny - dy);
 				}
-				break;
-			case BONUS_PLACE:
-				actorMove(g, a, nx, ny);
-				replaceBonus(g, nx - dx, ny - dy);
-				break;
-			default: break;
-		}
 	}
 }
 
@@ -580,15 +580,15 @@ Actor* getAdjacentCells(Game g, int cx, int cy){
  ******************************************************************************/
 bool isStuck (Game g, Actor* adjacentBlocks){
 	for(int i = 0; i < 8; i++){
-		if(adjacentBlocks[i] == NULL){
+		if(adjacentBlocks[i] == NULL || adjacentBlocks[i]->isWalkable){
 			return false;
 		}
-		switch(adjacentBlocks[i]->kind){ // Blocks that don't count
-			case BONUS_PLACE:
-				return false;
-				break;
-			default: break;
-		}
+		// switch(adjacentBlocks[i]->kind){ // Blocks that don't count
+		// 	case BONUS_PLACE:
+		// 		return false;
+		// 		break;
+		// 	default: break;
+		// }
 	}
 	return true;
 }

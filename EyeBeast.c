@@ -329,7 +329,7 @@ typedef struct {
 	ActorKind kind;
 	int x, y;
 	Image image;
-	bool isTasty;
+	bool isKillable;
 	bool isFrozen;
 	bool isWalkable;
 	bool isPushable;
@@ -435,11 +435,11 @@ Actor actorNew(Game g, ActorKind kind, int x, int y)
 	a->image = actorImage(kind);
 	a->isFrozen = false;
 	a->isPushable = false;
-	a->isTasty = false;
+	a->isKillable = false;
 	a->isWalkable = false;
 	switch(kind){
 		case HERO:
-			a->isTasty = true;
+			a->isKillable = true;
 			break;
 		case BONUS_PLACE:
 			a->isWalkable = true;
@@ -461,41 +461,43 @@ void LoseGame(){
 }
 
 /******************************************************************************
- * pushBlock - Returns true if sucessful, false otherwise.
+ * pushBlock - Returns true if sucessful, false otherwise
  ******************************************************************************/
-bool pushBlock(Game g, Actor a, int dx, int dy) {
-	Actor block = a;
-	bool canContinue = true;
-	while(!cellIsEmpty(g, block->x+dx, block->y+dy) && canContinue){
+bool pushBlock(Game g, Actor firstBlock, int dx, int dy) {
+	Actor block = firstBlock;
+	while(!cellIsEmpty(g, block->x+dx, block->y+dy)){
+		
 		block = g->world[block->x+dx][block->y+dy];
-		switch(block->kind){
-			case BLOCK:
-				break;
-			case BONUS_PLACE:
-				block = g->world[block->x-dx][block->y-dy];
-				canContinue = false;
-				break;
-			default:
-				return false; 
+		
+		if(!block->isPushable){
+			return false;
+		}
+
+		if(block->isWalkable){
+			block = g->world[block->x-dx][block->y-dy];
+			break;
 		}
 	}
-	while(tyDistance(block->x, block->y, a->x, a->y) != 0){
+	while(tyDistance(block->x, block->y, firstBlock->x, firstBlock->y) != 0){
 		int tempBlockX = block->x-dx;
 		int tempBlockY = block->y-dy;
 		actorMove(g, block, block->x+dx, block->y+dy);
 		block = g->world[tempBlockX][tempBlockY];
 	}
-	int tempHeroX = a->x-dx;
-	int tempHeroY = a->y-dy;
-	actorMove(g, a, a->x+dx, a->y+dy);
+	int tempHeroX = firstBlock->x-dx;
+	int tempHeroY = firstBlock->y-dy;
+	actorMove(g, firstBlock, firstBlock->x+dx, firstBlock->y+dy);
 	actorMove(g, g->world[tempHeroX][tempHeroY], tempHeroX+dx, tempHeroY+dy);
 	return true;
 }
 
 /******************************************************************************
- * cellIsBonus - Returns the bonus actor if cell is bonus
+ * cellIsWalkable - Returns the cell actor if it is walkable, returns null
+ * otherwise. Since right now the only walkable actors are the bonus cells,
+ * we only check if the coordinates correspond with the coordinates of a bonus
+ * cell. If there were more walkable actors, we would also check for those
  ******************************************************************************/
-Actor cellIsBonus(Game g, int x, int y){
+Actor cellIsWalkable(Game g, int x, int y){
 	int numBonus = N_BONUS_CHUNK * N_BONUS_CELLS_PER_CHUNK;
 	for(int i = 0; i < numBonus; i++){
 		Actor bonus = g->bonusCells[i];
@@ -506,11 +508,11 @@ Actor cellIsBonus(Game g, int x, int y){
 	return NULL;
 }
 /******************************************************************************
- * replaceBonus - If there is a bonus place in the given coordinates, re-show
- * it.
+ * replaceWalkable - If there is a walkable actor in the given coordinates, 
+ * re-show it
  ******************************************************************************/
-void replaceBonus(Game g, int x, int y){
-	Actor bonus = cellIsBonus(g, x, y);
+void replaceWalkable(Game g, int x, int y){
+	Actor bonus = cellIsWalkable(g, x, y);
 	if(bonus != NULL){
 		actorShow(g, bonus);
 	}
@@ -525,12 +527,12 @@ void heroAnimation(Game g, Actor a)
 	int nx = a->x + dx, ny = a->y + dy;
 	if (cellIsEmpty(g, nx, ny) || g->world[nx][ny]->isWalkable){
 		actorMove(g, a, nx, ny);
-		replaceBonus(g, nx - dx, ny - dy);
+		replaceWalkable(g, nx - dx, ny - dy);
 	}
 	else if(g->world[nx][ny]->isPushable){
 		pushBlock(g, g->world[nx][ny], dx, dy);
 				if(nx-dx != a->x || ny-dy != a->y){
-					replaceBonus(g, nx - dx, ny - dy);
+					replaceWalkable(g, nx - dx, ny - dy);
 				}
 	}
 }
@@ -576,19 +578,13 @@ Actor* getAdjacentCells(Game g, int cx, int cy){
 
 /******************************************************************************
  * isStuck - Verifies if all the adjacent cells given by the actor array are not
- * empty.
+ * empty
  ******************************************************************************/
 bool isStuck (Game g, Actor* adjacentBlocks){
 	for(int i = 0; i < 8; i++){
 		if(adjacentBlocks[i] == NULL || adjacentBlocks[i]->isWalkable){
 			return false;
 		}
-		// switch(adjacentBlocks[i]->kind){ // Blocks that don't count
-		// 	case BONUS_PLACE:
-		// 		return false;
-		// 		break;
-		// 	default: break;
-		// }
 	}
 	return true;
 }
@@ -605,69 +601,69 @@ void chaserAnimation(Game g, Actor a){
 	int ny;
 	int heroX = g->hero->x;
 	int heroY = g->hero->y;
-	
-	if(heroX > x){
-		nx = x + 1;
-	} else if (heroX < x){
-		nx = x - 1;
-	}
-	else {
-		nx = x;
-	}
-	
-	if(heroY > y){
-		ny = y + 1;
-	} else if (heroY < y){
-		ny = y - 1;
-	}
-	else {
-		ny = y;
-	}
 
-	if(g->world[nx][ny] != NULL){
-		if(g->world[nx][ny]->isTasty){
-			switch(g->world[nx][ny]->kind){
-				case HERO:
-					actorMove(g, a, nx, ny);
-					replaceBonus(g, x, y);
-					LoseGame();
-					break;
-				default:
-					actorMove(g, a, nx, ny);
-					replaceBonus(g, x, y);
-					break;
-			}
-			actorMove(g, a, nx, ny);
-			replaceBonus(g, x, y);
-			LoseGame();
-		}
-		if(g->world[nx][ny]->kind == BONUS_PLACE){
-			actorMove(g, a, nx, ny);
-			replaceBonus(g, x, y);
-			return;
-		}
-	}
-	
 	Actor* adjacent = getAdjacentCells(g, x, y);
-
+	
 	if(!isStuck(g, adjacent)){
-		while(!cellIsEmpty(g, nx, ny)){
-			nx = x + (tyRand(3) - 1);
-			ny = y + (tyRand(3) - 1);
-			if(g->world[nx][ny] != NULL && 
-			g->world[nx][ny]->kind == BONUS_PLACE){
+		if(heroX > x){
+			nx = x + 1;
+		} else if (heroX < x){
+			nx = x - 1;
+		}
+		else {
+			nx = x;
+		}
+	
+		if(heroY > y){
+			ny = y + 1;
+		} else if (heroY < y){
+			ny = y - 1;
+		}
+		else {
+			ny = y;
+		}
+
+		if(g->world[nx][ny] != NULL){
+			if(g->world[nx][ny]->isKillable){
+				switch(g->world[nx][ny]->kind){
+					case HERO:
+						actorMove(g, a, nx, ny);
+						replaceWalkable(g, x, y);
+						LoseGame();
+						break;
+					default:
+						actorMove(g, a, nx, ny);
+						replaceWalkable(g, x, y);
+						break;
+				}
+			}
+			else if(g->world[nx][ny]->kind == BONUS_PLACE){
 				actorMove(g, a, nx, ny);
-				replaceBonus(g, x, y);
-				free(adjacent);
+				replaceWalkable(g, x, y);
 				return;
 			}
 		}
-	}
-	else{return;}
+	
 
-	actorMove(g, a, nx, ny);
-	replaceBonus(g, x, y);
-	free(adjacent);
+			while(!cellIsEmpty(g, nx, ny)){
+				nx = x + (tyRand(3) - 1);
+				ny = y + (tyRand(3) - 1);
+				if(g->world[nx][ny] != NULL && 
+				g->world[nx][ny]->kind == BONUS_PLACE){
+					actorMove(g, a, nx, ny);
+					replaceWalkable(g, x, y);
+					free(adjacent);
+					return;
+				}
+			}
+			actorMove(g, a, nx, ny);
+			replaceWalkable(g, x, y);
+			free(adjacent);
+	}
+	else{
+		free(adjacent);
+		return;	
+	}
 }
 
 /******************************************************************************
@@ -930,6 +926,10 @@ void freezeActors(Actor* a, int num, bool toFreeze){
 	
 }
 
+/******************************************************************************
+ * checkIfBonus - Checks if all the bonus spots have blocks on top of them.
+ * Returns true if they do, false otherwise.
+******************************************************************************/
 void checkIfBonus(Game g){
 	if(areAllBonusFilled(g)){
 		tyAlertDialog("You did it!", "The monsters will be frozen \
@@ -938,6 +938,7 @@ for some time!\nTake advantage of it!");
 		g->ticksSinceBonus = g->tick;
 		moveBonus(g);
 	}
+	// true if FREEZE_TIME ticks have passed, since the bonus was activated
 	if((g->tick - g->ticksSinceBonus) == FREEZE_TIME){
 		g->ticksSinceBonus = 0;
 		freezeActors(g->monsters, N_MONSTERS, false);

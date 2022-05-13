@@ -348,7 +348,7 @@ typedef struct {
 #define MONSTER_ANIM_DELAY	10
 #define N_BONUS_CELLS_PER_CHUNK	4
 #define N_BONUS_CHUNK	2
-#define FREEZE_TIME		110
+#define FREEZE_TIME		200
 
 typedef struct {
 	Actor world[WORLD_SIZE_X][WORLD_SIZE_Y];
@@ -663,6 +663,7 @@ void chaserAnimation(Game g, Actor a){
 			}
 		}
 	}
+	else{return;}
 
 	actorMove(g, a, nx, ny);
 	replaceBonus(g, x, y);
@@ -768,9 +769,10 @@ void gameInstallHero(Game g)
 
 /******************************************************************************
  * installBonusChunk - Install a chunk of bonus cells.
- * 	If possible, the chunk should try to have 4 bonus spots.
+ * 	If possible, the chunk should try to have N_BONUS_CELLS_PER_CHUNK
+ *  bonus cells.
  ******************************************************************************/
-void installBonusChunk(Game g, int nChunk){
+void installBonusChunk(Game g, int nChunk){ 
 	int x;
 	int y;
 	int tempX;
@@ -1111,5 +1113,5 @@ void tyHandleStart(void)
 {
 	tySecondsSetZero();
 	tySetSpeed(4);
-	game = gameInit(game);	
+	game = gameInit(game);
 }

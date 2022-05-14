@@ -900,7 +900,7 @@ void gameAnimation(Game g) {
 }
 
 /******************************************************************************
- * freezeMonsters - Freezes the given monster if toFreeze is true,
+ * freezeMonster - Freezes the given monster if toFreeze is true,
  * otherwise unfreezes.
 ******************************************************************************/
 void freezeMonster(Actor monster, bool toFreeze){

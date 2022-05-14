@@ -671,15 +671,18 @@ void chaserAnimation(Game g, Actor a){
  ******************************************************************************/
 void actorAnimation(Game g, Actor a)
 {
-	switch( a->kind ) {
-		case HERO: heroAnimation(g, a); break;
-		case CHASER: 
-			if(!(a->isFrozen)){
+	if(!a->isFrozen){
+		switch( a->kind ) {
+			case HERO: 
+				heroAnimation(g, a);
+				break;
+			case CHASER: 
 				chaserAnimation(g, a);
-			}
-			break;
-		default: break;
+				break;
+			default: break;
+		}
 	}
+	
 }
 
 /******************************************************************************/
@@ -897,17 +900,16 @@ void gameAnimation(Game g) {
 }
 
 /******************************************************************************
- * freeMonsters - Freezes all the monsters in the given monster array
- * if toFreeze is true, otherwise unfreezes.
+ * freezeMonsters - Freezes the given monster if toFreeze is true,
+ * otherwise unfreezes.
 ******************************************************************************/
-void freeMonsters(Actor* a, int num, bool toFreeze){
-	for(int i = 0; i < num; i++){
-			a[i]->isFrozen = toFreeze;
-			if(toFreeze)
-				a[i]->image = chaserFrozenImg;
-			else
-				a[i]->image = chaserImg;
-		}
+void freezeMonster(Actor monster, bool toFreeze){
+	monster->isFrozen = toFreeze;
+	if(toFreeze)
+		monster->image = chaserFrozenImg;
+	else
+		monster->image = chaserImg;
+	
 }
 
 /******************************************************************************
@@ -916,14 +918,16 @@ void freeMonsters(Actor* a, int num, bool toFreeze){
 ******************************************************************************/
 void freezeActors(Actor* a, int num, bool toFreeze){
 	
-	switch (a[0]->kind){
-	case CHASER:
-		freeMonsters(a, num, toFreeze);
-		break;
-	default:
-		break;
+	for(int i = 0; i < num; i++){
+		switch(a[i]->kind){
+			case CHASER:
+				freezeMonster(a[i], toFreeze);
+				break;
+			default:
+				break;
+		}
 	}
-	
+
 }
 
 /******************************************************************************
